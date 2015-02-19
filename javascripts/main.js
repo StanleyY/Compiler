@@ -15,9 +15,12 @@ function test(){
 
 function lexer(input){
   console.log(input);
+  console.log(input.split("\n"));
   raiseFatalError(input);
 }
 
 function raiseFatalError(message){
-  OUTPUT.append("Fatal Error: " + message + "\n");
+  message = "Fatal Error: " + message + "\n";
+  OUTPUT.append(message);
+  throw new Error(message);
 }
