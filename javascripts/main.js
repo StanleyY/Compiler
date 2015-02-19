@@ -5,7 +5,7 @@ INPUT = null;
 
 //Regex Constants
 TYPE = 'int|string|boolean';
-CHAR = 'a-zA-Z';
+CHAR = 'a-z';
 SPACE = '\\s';
 DIGIT = '\\d';
 BOOLOP = '(?:^|[^!=])([!=]=)(?!=)'; // Matches only == and !=, === and !== fails
