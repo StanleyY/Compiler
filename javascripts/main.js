@@ -49,24 +49,28 @@ function lexer(input){
 
 function generateTokens(){
   var line = 0;
+  var pos = 0;
   var current_token;
   var RE_BLOCKS = new RegExp("[\{\}\(\)]", "g");
 
   while(line < INPUT_LINES.length){
-    while(INPUT_LINES[line].length > 0){
-      current_token = INPUT_LINES[line].charAt(0);
-      INPUT_LINES[line] = INPUT_LINES[line].substr(1);
+    while(pos < INPUT_LINES[line].length){
+      current_token = INPUT_LINES[line].charAt(pos);
+      //INPUT_LINES[line] = INPUT_LINES[line].substr(1);
       if(RE_BLOCKS.exec(current_token) != null) generateToken(current_token, "Block");
 
       else if (current_token == "!") {
-        if(INPUT_LINES[line].charAt(0) == "=") {
+        if(INPUT_LINES[line].charAt(pos + 1) == "=") {
           generateToken("!=", "BoolOp");
-          INPUT_LINES[line] = INPUT_LINES[line].substr(1);
+          pos++;
+          //INPUT_LINES[line] = INPUT_LINES[line].substr(1);
         }
         else raiseFatalError("Invalid symbol at line: " + line); // This should never be reached due to checkInvalids.
       }
+      pos++;
       //else raiseFatalError("Invalid symbol at line " + line);
     }
+    pos = 0;
     line++;
   }
   //console.log(TOKENS);
