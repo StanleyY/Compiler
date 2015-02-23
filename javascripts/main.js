@@ -20,14 +20,19 @@ INVALID_ASSIGNMENT = '.*((int|boolean|string)\\s+(\\d|[a-z]\\w+)).*'
 
 // setup the globals
 function init(){
+  $('#inputTextArea').linedtextarea();
+  resetPage();
+}
+
+function resetPage(){
   OUTPUT = $('#outputTextArea');
   INPUT = $('#inputTextArea');
   LINES = INPUT.val().split("\n");
+  OUTPUT.empty();  // Clear the output text area.
 }
 
 function test(){
-  init();
-  OUTPUT.empty();  // Clear the output text area.
+  resetPage();
   lexer(INPUT.val());
 }
 
