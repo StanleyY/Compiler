@@ -32,8 +32,7 @@ function test(){
 }
 
 function lexer(input){
-  //checkInvalids();
-  checkAssignments();
+  checkInvalids();
   //console.log(input.split("\n"));
   //raiseFatalError(input);
 }
@@ -50,21 +49,6 @@ function checkInvalids(){
     line++;
   }
   writeOutput("No invalid characters found.");
-}
-
-function checkAssignments(){
-  var line = 0;
-  var invalid_re = new RegExp(INVALID_ASSIGNMENT, "g");
-  console.log(invalid_re);
-  var invalid_check;
-
-  while(line < LINES.length){
-    invalid_check = invalid_re.exec(LINES[line]);
-    console.log(LINES[line]);
-    if(invalid_check != null) raiseFatalError("Invalid assignment found at line: " + (line + 1) );
-    line++;
-  }
-  writeOutput("No invalid assignments found.");
 }
 
 function writeOutput(message){
