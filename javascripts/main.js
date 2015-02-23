@@ -110,7 +110,7 @@ function checkInvalids(){
     invalid_check = invalid_re.exec(INPUT_LINES[line]);
     //console.log(INPUT_LINES[line]);
     if(invalid_check != null) {
-      raiseFatalError("Invalid symbol " + invalid_check[1] + " found at line: " + (line + 1) + " position: " + invalid_re.lastIndex);
+      raiseFatalError("Invalid symbol: " + invalid_check[1] + " found at line: " + (line + 1) + " position: " + invalid_re.lastIndex);
     }
     line++;
   }
