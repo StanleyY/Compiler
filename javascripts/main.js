@@ -2,7 +2,8 @@ console.log("Main JS file loaded");
 //Globals
 OUTPUT = null;
 INPUT = null;
-LINES = null;
+INPUT_LINES = null;
+TOKENS = [];
 
 //Regex Constants
 TYPE = '(int|string|boolean)';
@@ -13,6 +14,8 @@ BOOLOP = '(?:^|[^!=])([!=]=)(?!=)'; // Matches only == and !=, === and !== fails
 BOOLVAL = 'false|true';
 INTOP = '\\+';
 BLOCKS = "\\" + ["{", "}", "(", ")", "\"", "\""].join("\\"); // Curly Brace,
+
+//RE_BLOCKS = new RegExp(BLOCKS, "g");
 
 INVALID = ".*([=]{3,}|(!={2,})|!(?!=)|" + "[^" + CHAR + SPACE + DIGIT + INTOP + BLOCKS + "!" + "=" + "$" + "]).*";
 INVALID_ASSIGNMENT = '.*((int|boolean|string)\\s+(\\d|[a-z]\\w+)).*'
@@ -27,7 +30,8 @@ function init(){
 function resetPage(){
   OUTPUT = $('#outputTextArea');
   INPUT = $('#inputTextArea');
-  LINES = INPUT.val().split("\n");
+  INPUT_LINES = INPUT.val().split("\n");
+  TOKENS = [];
   OUTPUT.empty();  // Clear the output text area.
 }
 
@@ -38,8 +42,50 @@ function test(){
 
 function lexer(input){
   checkInvalids();
+  generateTokens();
   //console.log(input.split("\n"));
   //raiseFatalError(input);
+}
+
+function generateTokens(){
+  var line = 0;
+  var current_token;
+  var RE_BLOCKS = new RegExp("[\{\}\(\)]", "g");
+
+  while(line < INPUT_LINES.length){
+    while(INPUT_LINES[line].length > 0){
+      current_token = INPUT_LINES[line].charAt(0);
+      INPUT_LINES[line] = INPUT_LINES[line].substr(1);
+      if(RE_BLOCKS.exec(current_token) != null) generateToken(current_token, "Block");
+
+      else if (current_token == "!") {
+        if(INPUT_LINES[line].charAt(0) == "=") {
+          generateToken("!=", "BoolOp");
+          INPUT_LINES[line] = INPUT_LINES[line].substr(1);
+        }
+        else raiseFatalError("Invalid symbol at line: " + line); // This should never be reached due to checkInvalids.
+      }
+      //else raiseFatalError("Invalid symbol at line " + line);
+    }
+    line++;
+  }
+  //console.log(TOKENS);
+  printTokens();
+}
+
+function generateToken(val, given_type){
+  TOKENS.push({value:val, type:given_type});
+}
+
+function printTokens(printTypes){
+  printTypes = printTypes || false; // Hacky way of optional parameter
+  var output = [];
+  var index;
+  for(index = 0; index < TOKENS.length; index++){
+    if(printTypes) output.push("" + TOKENS[index].value + ", " + TOKENS[index].type);
+    else output.push(TOKENS[index].value);
+  }
+  console.log(output);
 }
 
 function checkInvalids(){
@@ -47,9 +93,9 @@ function checkInvalids(){
   var invalid_re = new RegExp(INVALID, "g");
   var invalid_check;
 
-  while(line < LINES.length){
-    invalid_check = invalid_re.exec(LINES[line]);
-    console.log(LINES[line]);
+  while(line < INPUT_LINES.length){
+    invalid_check = invalid_re.exec(INPUT_LINES[line]);
+    //console.log(INPUT_LINES[line]);
     if(invalid_check != null) raiseFatalError("Invalid symbol found at line: " + (line + 1) + " position: " + invalid_re.lastIndex);
     line++;
   }
