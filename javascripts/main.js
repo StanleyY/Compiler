@@ -14,7 +14,7 @@ BOOLVAL = 'false|true';
 INTOP = '\\+';
 BLOCKS = "\\" + ["{", "}", "(", ")", "\"", "\""].join("\\"); // Curly Brace,
 
-INVALID = "[^" + CHAR + SPACE + DIGIT + INTOP + BLOCKS + "!" + "=" + "$" + "]";
+INVALID = ".*([=]{3,}|(!={2,})|!(?!=)|" + "[^" + CHAR + SPACE + DIGIT + INTOP + BLOCKS + "!" + "=" + "$" + "]).*";
 INVALID_ASSIGNMENT = '.*((int|boolean|string)\\s+(\\d|[a-z]\\w+)).*'
 
 
@@ -45,10 +45,10 @@ function checkInvalids(){
   while(line < LINES.length){
     invalid_check = invalid_re.exec(LINES[line]);
     console.log(LINES[line]);
-    if(invalid_check != null) raiseFatalError("Invalid character found at line: " + (line + 1) );
+    if(invalid_check != null) raiseFatalError("Invalid symbol found at line: " + (line + 1) + " position: " + invalid_re.lastIndex);
     line++;
   }
-  writeOutput("No invalid characters found.");
+  writeOutput("No invalid symbols found.");
 }
 
 function writeOutput(message){
