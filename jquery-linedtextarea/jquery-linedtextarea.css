@@ -38,7 +38,7 @@
 .linedtextarea textarea {
 	padding-right:0.3em;
 	padding-top:0.3em;
-	border: 0;
+	border: 1px solid #c0c0c0;
 }
 
 .linedwrap .lines {
