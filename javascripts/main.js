@@ -17,7 +17,7 @@ BLOCKS = "\\" + ["{", "}", "(", ")", "\"", "\""].join("\\"); // Curly Brace,
 
 //RE_BLOCKS = new RegExp(BLOCKS, "g");
 
-INVALID = ".*([=]{3,}|(!={2,})|!(?!=)|" + "[^" + CHAR + SPACE + DIGIT + INTOP + BLOCKS + "!" + "=" + "$" + "]).*";
+INVALID = ".*([=]{3,}|(!={2,})|\\+{2,}|!(?!=)|" + "[^" + CHAR + SPACE + DIGIT + INTOP + BLOCKS + "!" + "=" + "$" + "]).*";
 INVALID_ASSIGNMENT = '.*((int|boolean|string)\\s+(\\d|[a-z]\\w+)).*'
 
 
@@ -109,7 +109,9 @@ function checkInvalids(){
   while(line < INPUT_LINES.length){
     invalid_check = invalid_re.exec(INPUT_LINES[line]);
     //console.log(INPUT_LINES[line]);
-    if(invalid_check != null) raiseFatalError("Invalid symbol found at line: " + (line + 1) + " position: " + invalid_re.lastIndex);
+    if(invalid_check != null) {
+      raiseFatalError("Invalid symbol " + invalid_check[1] + " found at line: " + (line + 1) + " position: " + invalid_re.lastIndex);
+    }
     line++;
   }
   writeOutput("No invalid symbols found.");
