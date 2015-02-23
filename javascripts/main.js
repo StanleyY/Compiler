@@ -59,6 +59,15 @@ function generateTokens(){
       //INPUT_LINES[line] = INPUT_LINES[line].substr(1);
       if(RE_BLOCKS.exec(current_token) != null) generateToken(current_token, "Block");
 
+      else if (current_token == "=") {
+        if(INPUT_LINES[line].charAt(pos + 1) == "=") {
+          generateToken("==", "BoolOp");
+          pos++;
+          //INPUT_LINES[line] = INPUT_LINES[line].substr(1);
+        }
+        else generateToken(current_token, "Assignment");
+      }
+
       else if (current_token == "!") {
         if(INPUT_LINES[line].charAt(pos + 1) == "=") {
           generateToken("!=", "BoolOp");
