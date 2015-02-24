@@ -5,22 +5,6 @@ INPUT = null;
 INPUT_LINES = null;
 TOKENS = [];
 
-//Regex Constants
-TYPE = '(int|string|boolean)';
-CHAR = 'a-z';
-SPACE = '\\s';
-DIGIT = '\\d';
-BOOLOP = '(?:^|[^!=])([!=]=)(?!=)'; // Matches only == and !=, === and !== fails
-BOOLVAL = 'false|true';
-INTOP = '\\+';
-BLOCKS = "\\" + ["{", "}", "(", ")", "\"", "\""].join("\\"); // Curly Brace,
-
-//RE_BLOCKS = new RegExp(BLOCKS, "g");
-
-INVALID = ".*([=]{3,}|(!={2,})|\\+{2,}|!(?!=)|" + "[^" + CHAR + SPACE + DIGIT + INTOP + BLOCKS + "!" + "=" + "$" + "]).*";
-INVALID_ASSIGNMENT = '.*((int|boolean|string)\\s+(\\d|[a-z]\\w+)).*'
-
-
 // setup the globals
 function init(){
   $('#inputTextArea').linedtextarea();
@@ -118,15 +102,16 @@ function printTokens(printTypes){
 }
 
 function checkInvalids(){
+  var re_invalid = /.*([=]{3,}|(!={2,})|\+{2,}|!(?!=)|[^a-z0-9\+\{\}\(\)"!=$ ]).*/g;
   var line = 0;
-  var invalid_re = new RegExp(INVALID, "g");
   var invalid_check;
 
   while(line < INPUT_LINES.length){
-    invalid_check = invalid_re.exec(INPUT_LINES[line]);
-    //console.log(INPUT_LINES[line]);
+    invalid_check = re_invalid.exec(INPUT_LINES[line]);
     if(invalid_check != null) {
-      raiseFatalError("Invalid symbol: " + invalid_check[1] + " found at line: " + (line + 1) + " position: " + invalid_re.lastIndex);
+      console.log(invalid_check);
+      raiseFatalError("Invalid symbol: " + invalid_check[1] + " found at line: " + (line + 1)
+                      + " position: " + (re_invalid.lastIndex - invalid_check[1].length));
     }
     line++;
   }
