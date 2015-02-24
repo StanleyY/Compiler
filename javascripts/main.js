@@ -25,11 +25,33 @@ function resetPage(){
 function test(){
   resetPage();
   lexer();
+  parser();
+}
+
+function parser(){
+  bracesCheck();
 }
 
 function lexer(){
   checkInvalids();
   generateTokens();
+}
+
+function bracesCheck(){
+  var index = 0;
+  var stack = new Array();
+  var re_braces = /[\{\(]/g;
+
+  for (index = 0; index < TOKENS.length; index++){
+    current_token = TOKENS[index].value;
+    if(current_token.match(re_braces) != null) stack.push(current_token);
+    else if(current_token == "}") {
+      if(stack.pop() != "{") raiseFatalError("Expected ), found } instead.");
+    }
+    else if(current_token == ")") {
+      if(stack.pop() != "(") raiseFatalError("Expected }, found ) instead.");
+    }
+  }
 }
 
 function generateTokens(){
