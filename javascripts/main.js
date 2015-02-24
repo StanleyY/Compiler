@@ -5,6 +5,10 @@ INPUT = null;
 INPUT_LINES = null;
 TOKENS = [];
 
+RE_TYPE = /^(int|string|boolean)/g;
+RE_KEYWORD = /^(if|while|print)/g;
+RE_BOOLEAN = /^(true|false)/g;
+
 // setup the globals
 function init(){
   $('#inputTextArea').linedtextarea();
@@ -38,6 +42,7 @@ function generateTokens(){
   var string_mode = false;
   var re_blocks = /[\{\}\(\)]/g;
   var re_digits = /[0-9]/g;
+  var re_chars = /[a-z]/g;
   var re_string = /[ a-z]/g;
 
   while(line < INPUT_LINES.length){
@@ -70,6 +75,8 @@ function generateTokens(){
           else raiseFatalError("Invalid symbol at line: " + line); // This should never be reached due to checkInvalids.
         }
 
+        else if(current_token.match(re_chars) != null) pos = pos + keywordCheck(current_token, line, pos);
+
         //else raiseFatalError("Invalid symbol at line " + line); // If you reaches here, something has gone horribly wrong.
       }
       else{ //String Mode
@@ -86,6 +93,51 @@ function generateTokens(){
     line++;
   }
   printTokens();
+}
+
+function keywordCheck(letter, line, pos){
+  // keywordCheck returns how far to move the position pointer.
+  var temp = INPUT_LINES[line].substr(pos);
+  if(temp.match(RE_TYPE) != null){
+    if(letter == "b"){
+      generateToken("boolean", "Type");
+      return 6;
+    }
+    else if(letter == "i"){
+      generateToken("int", "Type");
+      return 2;
+    }
+    else if(letter == "s"){
+      generateToken("string", "Type");
+      return 5;
+    }
+  }
+  else if (temp.match(RE_BOOLEAN) != null){
+    if(letter == "f"){
+      generateToken("false", "BoolVal");
+      return 4;
+    }
+    else if(letter == "t"){
+      generateToken("true", "BoolVal");
+      return 3;
+    }
+  }
+  else if (temp.match(RE_KEYWORD) != null){
+    if(letter == "i"){
+      generateToken("if", "Keyword");
+      return 1;
+    }
+    else if(letter == "p"){
+      generateToken("print", "Keyword");
+      return 4;
+    }
+    else if(letter == "w"){
+      generateToken("while", "Keyword");
+      return 4;
+    }
+  }
+  generateToken(letter, "Char");
+  return 0;
 }
 
 function generateToken(val, given_type){
