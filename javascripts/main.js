@@ -1,4 +1,15 @@
 console.log("Main JS file loaded");
+
+/*
+Token Object Structure
+{
+  value: the literal char for the token.
+  type: the type of token it is. Example: Type, Char, Boolean.
+  line: the line it was found on.
+  pos: the position on the above line it was found at.
+}
+*/
+
 //Globals
 OUTPUT = null;
 INPUT = null;
@@ -72,26 +83,26 @@ function generateTokens(){
 
       if(string_mode == false){
         if (current_token.match(/\s/g)); // Strip whitespace when not in string mode.
-        else if(current_token.match(re_blocks) != null) generateToken(current_token, "Block");
-        else if(current_token.match(re_digits) != null) generateToken(current_token, "Digit");
-        else if(current_token == "+") generateToken(current_token, "IntOp");
+        else if(current_token.match(re_blocks) != null) generateToken(current_token, "Block", line, pos);
+        else if(current_token.match(re_digits) != null) generateToken(current_token, "Digit", line, pos);
+        else if(current_token == "+") generateToken(current_token, "IntOp", line, pos);
 
         else if(current_token == "\"") {
-          generateToken(current_token, "Quote");
+          generateToken(current_token, "Quote", line, pos);
           string_mode = true;
         }
 
         else if (current_token == "=") {
           if(INPUT_LINES[line].charAt(pos + 1) == "=") {
-            generateToken("==", "BoolOp");
+            generateToken("==", "BoolOp", line, pos);
             pos++;
           }
-          else generateToken(current_token, "Assignment");
+          else generateToken(current_token, "Assignment", line, pos);
         }
 
         else if (current_token == "!") {
           if(INPUT_LINES[line].charAt(pos + 1) == "=") {
-            generateToken("!=", "BoolOp");
+            generateToken("!=", "BoolOp", line, pos);
             pos++;
           }
           else raiseFatalError("Invalid symbol at line: " + line); // This should never be reached due to checkInvalids.
@@ -99,15 +110,15 @@ function generateTokens(){
 
         else if(current_token.match(re_chars) != null) pos = pos + keywordCheck(current_token, line, pos);
 
-        else if(current_token == "$") {generateToken(current_token, "EOF"); EOF_found = true;}
+        else if(current_token == "$") {generateToken(current_token, "EOF", line, pos); EOF_found = true;}
 
         // If you reaches here, something has gone horribly wrong.
         else raiseFatalError("Invalid symbol: " + current_token + " at line " + line);
       }
       else{ //String Mode
-        if(current_token.match(re_string) != null) generateToken(current_token, "Char");
+        if(current_token.match(re_string) != null) generateToken(current_token, "Char", line, pos);
         else if(current_token == "\"") { // Ending Quote
-          generateToken(current_token, "Quote");
+          generateToken(current_token, "Quote", line, pos);
           string_mode = false;
         }
         else if(current_token.match(re_string) == null) raiseFatalError("Invalid string on line " + line + ". Only characters and space allowed.");
@@ -120,7 +131,7 @@ function generateTokens(){
 
   if(EOF_found == false) {
     raiseWarning("Reached EOF but $ not found. Added and continuing to parse.");
-    generateToken(current_token, "EOF");
+    generateToken(current_token, "EOF", line, pos);
   }
   console.log(printTokens());
   writeOutput("Lexer completed without errors.");
@@ -131,48 +142,48 @@ function keywordCheck(letter, line, pos){
   var temp = INPUT_LINES[line].substr(pos);
   if(temp.match(RE_TYPE) != null){
     if(letter == "b"){
-      generateToken("boolean", "Type");
+      generateToken("boolean", "Type", line, pos);
       return 6;
     }
     else if(letter == "i"){
-      generateToken("int", "Type");
+      generateToken("int", "Type", line, pos);
       return 2;
     }
     else if(letter == "s"){
-      generateToken("string", "Type");
+      generateToken("string", "Type", line, pos);
       return 5;
     }
   }
   else if (temp.match(RE_BOOLEAN) != null){
     if(letter == "f"){
-      generateToken("false", "BoolVal");
+      generateToken("false", "BoolVal", line, pos);
       return 4;
     }
     else if(letter == "t"){
-      generateToken("true", "BoolVal");
+      generateToken("true", "BoolVal", line, pos);
       return 3;
     }
   }
   else if (temp.match(RE_KEYWORD) != null){
     if(letter == "i"){
-      generateToken("if", "Keyword");
+      generateToken("if", "Keyword", line, pos);
       return 1;
     }
     else if(letter == "p"){
-      generateToken("print", "Keyword");
+      generateToken("print", "Keyword", line, pos);
       return 4;
     }
     else if(letter == "w"){
-      generateToken("while", "Keyword");
+      generateToken("while", "Keyword", line, pos);
       return 4;
     }
   }
-  generateToken(letter, "Char");
+  generateToken(letter, "Char", line, pos);
   return 0;
 }
 
-function generateToken(val, given_type){
-  TOKENS.push({value:val, type:given_type});
+function generateToken(val, given_type, given_line, given_pos){
+  TOKENS.push({value:val, type:given_type, line:given_line + 1, pos:given_pos + 1});
 }
 
 function printTokens(printTypes){
