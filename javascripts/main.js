@@ -9,7 +9,6 @@ RE_TYPE = /^(int|string|boolean)/g;
 RE_KEYWORD = /^(if|while|print)/g;
 RE_BOOLEAN = /^(true|false)/g;
 
-// setup the globals
 function init(){
   $('#inputTextArea').linedtextarea();
   resetPage();
@@ -25,14 +24,12 @@ function resetPage(){
 
 function test(){
   resetPage();
-  lexer(INPUT.val());
+  lexer();
 }
 
-function lexer(input){
+function lexer(){
   checkInvalids();
   generateTokens();
-  //console.log(input.split("\n"));
-  //raiseFatalError(input);
 }
 
 function generateTokens(){
@@ -153,7 +150,6 @@ function keywordCheck(letter, line, pos){
 }
 
 function generateToken(val, given_type){
-  //console.log("Pushing Token: " + val + " of type: " + given_type);
   TOKENS.push({value:val, type:given_type});
 }
 
