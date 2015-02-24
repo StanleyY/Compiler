@@ -39,7 +39,9 @@ function generateTokens(){
   var line = 0;
   var pos = 0;
   var current_token;
+  var EOF_found = false;
   var string_mode = false;
+
   var re_blocks = /[\{\}\(\)]/g;
   var re_digits = /[0-9]/g;
   var re_chars = /[a-z]/g;
@@ -50,7 +52,8 @@ function generateTokens(){
       current_token = INPUT_LINES[line].charAt(pos);
 
       if(string_mode == false){
-        if(current_token.match(re_blocks) != null) generateToken(current_token, "Block");
+        if (current_token.match(/\s/g)); // Strip whitespace when not in string mode.
+        else if(current_token.match(re_blocks) != null) generateToken(current_token, "Block");
         else if(current_token.match(re_digits) != null) generateToken(current_token, "Digit");
         else if(current_token == "+") generateToken(current_token, "IntOp");
 
@@ -77,7 +80,10 @@ function generateTokens(){
 
         else if(current_token.match(re_chars) != null) pos = pos + keywordCheck(current_token, line, pos);
 
-        //else raiseFatalError("Invalid symbol at line " + line); // If you reaches here, something has gone horribly wrong.
+        else if(current_token == "$") {generateToken(current_token, "EOF"); EOF_found = true;}
+
+        // If you reaches here, something has gone horribly wrong.
+        else raiseFatalError("Invalid symbol: " + current_token + " at line " + line);
       }
       else{ //String Mode
         if(current_token.match(re_string) != null) generateToken(current_token, "Char");
