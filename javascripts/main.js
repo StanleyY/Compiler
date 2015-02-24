@@ -98,7 +98,8 @@ function generateTokens(){
     pos = 0;
     line++;
   }
-  printTokens();
+  console.log(printTokens());
+  writeOutput("Lexer completed without errors.");
 }
 
 function keywordCheck(letter, line, pos){
@@ -159,7 +160,7 @@ function printTokens(printTypes){
     if(printTypes) output.push("" + TOKENS[index].value + ", " + TOKENS[index].type);
     else output.push(TOKENS[index].value);
   }
-  console.log(output);
+  return output;
 }
 
 function checkInvalids(){
@@ -176,7 +177,6 @@ function checkInvalids(){
     }
     line++;
   }
-  writeOutput("No invalid symbols found.");
 }
 
 function writeOutput(message){
