@@ -98,6 +98,11 @@ function generateTokens(){
     pos = 0;
     line++;
   }
+
+  if(EOF_found == false) {
+    raiseWarning("Reached EOF but $ not found. Added and continuing to parse.");
+    generateToken(current_token, "EOF");
+  }
   console.log(printTokens());
   writeOutput("Lexer completed without errors.");
 }
@@ -183,8 +188,13 @@ function writeOutput(message){
   OUTPUT.append(message + "\n");
 }
 
+function raiseWarning(message){
+  message = "Warning: " + message;
+  writeOutput(message);
+}
+
 function raiseFatalError(message){
-  message = "Fatal Error: " + message + "\n";
+  message = "Fatal Error: " + message;
   writeOutput(message);
   throw new Error(message);
 }
