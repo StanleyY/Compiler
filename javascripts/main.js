@@ -51,30 +51,46 @@ function generateTokens(){
   var line = 0;
   var pos = 0;
   var current_token;
-  var RE_BLOCKS = new RegExp("[\{\}\(\)]", "g");
+  var string_mode = false;
+  var RE_BLOCKS = /[\{\}\(\)]/g;
+  var RE_STRING = /[ a-z]/g;
 
   while(line < INPUT_LINES.length){
     while(pos < INPUT_LINES[line].length){
       current_token = INPUT_LINES[line].charAt(pos);
-      //INPUT_LINES[line] = INPUT_LINES[line].substr(1);
-      if(RE_BLOCKS.exec(current_token) != null) generateToken(current_token, "Block");
 
-      else if (current_token == "=") {
-        if(INPUT_LINES[line].charAt(pos + 1) == "=") {
-          generateToken("==", "BoolOp");
-          pos++;
-          //INPUT_LINES[line] = INPUT_LINES[line].substr(1);
+      if(string_mode == false){
+        if(current_token.match(RE_BLOCKS) != null) generateToken(current_token, "Block");
+        else if(current_token == "+") generateToken(current_token, "IntOp");
+
+        else if(current_token == "\"") {
+          generateToken(current_token, "Quote");
+          string_mode = true;
         }
-        else generateToken(current_token, "Assignment");
+
+        else if (current_token == "=") {
+          if(INPUT_LINES[line].charAt(pos + 1) == "=") {
+            generateToken("==", "BoolOp");
+            pos++;
+          }
+          else generateToken(current_token, "Assignment");
+        }
+
+        else if (current_token == "!") {
+          if(INPUT_LINES[line].charAt(pos + 1) == "=") {
+            generateToken("!=", "BoolOp");
+            pos++;
+          }
+          else raiseFatalError("Invalid symbol at line: " + line); // This should never be reached due to checkInvalids.
+        }
       }
-
-      else if (current_token == "!") {
-        if(INPUT_LINES[line].charAt(pos + 1) == "=") {
-          generateToken("!=", "BoolOp");
-          pos++;
-          //INPUT_LINES[line] = INPUT_LINES[line].substr(1);
+      else{ //String Mode
+        if(current_token.match(RE_STRING) != null) generateToken(current_token, "Char");
+        else if(current_token == "\"") { // Ending Quote
+          generateToken(current_token, "Quote");
+          string_mode = false;
         }
-        else raiseFatalError("Invalid symbol at line: " + line); // This should never be reached due to checkInvalids.
+        else {console.log(RE_STRING); console.log(RE_STRING.exec(current_token)); console.log(current_token); raiseFatalError("Unclosed String.");}
       }
       pos++;
       //else raiseFatalError("Invalid symbol at line " + line);
@@ -82,11 +98,11 @@ function generateTokens(){
     pos = 0;
     line++;
   }
-  //console.log(TOKENS);
   printTokens();
 }
 
 function generateToken(val, given_type){
+  //console.log("Pushing Token: " + val + " of type: " + given_type);
   TOKENS.push({value:val, type:given_type});
 }
 
