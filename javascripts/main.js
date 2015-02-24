@@ -36,15 +36,17 @@ function generateTokens(){
   var pos = 0;
   var current_token;
   var string_mode = false;
-  var RE_BLOCKS = /[\{\}\(\)]/g;
-  var RE_STRING = /[ a-z]/g;
+  var re_blocks = /[\{\}\(\)]/g;
+  var re_digits = /[0-9]/g;
+  var re_string = /[ a-z]/g;
 
   while(line < INPUT_LINES.length){
     while(pos < INPUT_LINES[line].length){
       current_token = INPUT_LINES[line].charAt(pos);
 
       if(string_mode == false){
-        if(current_token.match(RE_BLOCKS) != null) generateToken(current_token, "Block");
+        if(current_token.match(re_blocks) != null) generateToken(current_token, "Block");
+        else if(current_token.match(re_digits) != null) generateToken(current_token, "Digit");
         else if(current_token == "+") generateToken(current_token, "IntOp");
 
         else if(current_token == "\"") {
@@ -67,17 +69,18 @@ function generateTokens(){
           }
           else raiseFatalError("Invalid symbol at line: " + line); // This should never be reached due to checkInvalids.
         }
+
+        //else raiseFatalError("Invalid symbol at line " + line); // If you reaches here, something has gone horribly wrong.
       }
       else{ //String Mode
-        if(current_token.match(RE_STRING) != null) generateToken(current_token, "Char");
+        if(current_token.match(re_string) != null) generateToken(current_token, "Char");
         else if(current_token == "\"") { // Ending Quote
           generateToken(current_token, "Quote");
           string_mode = false;
         }
-        else {console.log(RE_STRING); console.log(RE_STRING.exec(current_token)); console.log(current_token); raiseFatalError("Unclosed String.");}
+        else raiseFatalError("Unclosed String.");
       }
       pos++;
-      //else raiseFatalError("Invalid symbol at line " + line);
     }
     pos = 0;
     line++;
