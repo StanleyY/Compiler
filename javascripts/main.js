@@ -78,7 +78,7 @@ function generateTokens(){
           generateToken(current_token, "Quote");
           string_mode = false;
         }
-        else raiseFatalError("Unclosed String.");
+        else if(current_token.match(re_string) == null) raiseFatalError("Invalid string on line " + line + ". Only characters and space allowed.");
       }
       pos++;
     }
