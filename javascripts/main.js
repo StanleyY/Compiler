@@ -264,7 +264,7 @@ function parseStatement(){
   //else if(TOKENS[PARSE_POSITION].value == "print") return;//PrintStatement
   //else if(TOKENS[PARSE_POSITION].value == "while") return; //WhileStatement
   //else if(TOKENS[PARSE_POSITION].value == "if") return; //IfStatement
-  //else if(TOKENS[PARSE_POSITION].value == "{") return; //Block
+  else if(TOKENS[PARSE_POSITION].value == "{") parseBlock(); //Block
   else raiseFatalError(generateUnexpectedTokenError(TOKENS[PARSE_POSITION]));
 }
 
