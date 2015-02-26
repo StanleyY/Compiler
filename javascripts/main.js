@@ -10,6 +10,7 @@ PARSE_POSITION = 0;
 function init(){
   $('#inputTextArea').linedtextarea();
   resetPage();
+  defaultTestCase();
 }
 
 function resetPage(){

@@ -14,3 +14,7 @@ function changeTestCase(){
   INPUT.val(TEST_CASES[$('#testCaseSelection').val()]);
   resetPage();
 }
+
+function defaultTestCase(){
+  INPUT.val(TEST_CASE_0);
+}
