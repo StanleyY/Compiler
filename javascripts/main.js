@@ -51,7 +51,7 @@ function parser(){
 function lexer(){
   checkInvalids();
   generateTokens();
-  console.log(printTokens(true));
+  console.log(printTokens());
 }
 
 function bracesCheck(){
@@ -253,15 +253,17 @@ function parseStatement(){
     printToken(TOKENS[PARSE_POSITION]);
     PARSE_POSITION++;
     parseVarDecl();
-    return;
   }
   else if(TOKENS[PARSE_POSITION].type == "Char") {//AssignmentStatement
     printToken(TOKENS[PARSE_POSITION]);
     PARSE_POSITION++;
     parseAssignment();
-    return;
   }
-  else if(TOKENS[PARSE_POSITION].value == "print") parsePrint();//PrintStatement
+  else if(TOKENS[PARSE_POSITION].value == "print") {
+    printToken(TOKENS[PARSE_POSITION]);
+    PARSE_POSITION++;
+    parsePrint();//PrintStatement
+  }
   //else if(TOKENS[PARSE_POSITION].value == "while") return; //WhileStatement
   //else if(TOKENS[PARSE_POSITION].value == "if") return; //IfStatement
   else if(TOKENS[PARSE_POSITION].value == "{") parseBlock(); //Block
@@ -287,14 +289,12 @@ function parseAssignment(){
 }
 
 function parsePrint(){
-  if(TOKENS[PARSE_POSITION].value != "print") raiseFatalError(generateTokenError("print", TOKENS[PARSE_POSITION]));
-  printToken(TOKENS[PARSE_POSITION]);
-  PARSE_POSITION++;
-
   if(TOKENS[PARSE_POSITION].value != "(") raiseFatalError(generateTokenError("(", TOKENS[PARSE_POSITION]));
   printToken(TOKENS[PARSE_POSITION]);
   PARSE_POSITION++;
+
   parseExpr();
+
   if(TOKENS[PARSE_POSITION].value != ")") raiseFatalError(generateTokenError(")", TOKENS[PARSE_POSITION]));
   printToken(TOKENS[PARSE_POSITION]);
   PARSE_POSITION++;
