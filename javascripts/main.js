@@ -40,7 +40,10 @@ function test(){
 }
 
 function parser(){
+  writeOutput("Beginning Parser.");
   bracesCheck();
+  parseProgram();
+  writeOutput("Parser completed without errors.");
 }
 
 function lexer(){
@@ -214,6 +217,42 @@ function checkInvalids(){
     }
     line++;
   }
+}
+
+function parseProgram(){
+  parseBlock();
+  var temp_token = TOKENS.shift();
+  if(temp_token.value != "$") raiseFatalError("Expected $, Found " + temp_token.value + " instead.");
+}
+
+function parseBlock(){
+  var temp_token = TOKENS[0];
+  if(temp_token.value != "{") raiseFatalError("Expected {, Found " + temp_token.value + " instead.");
+  TOKENS.shift();
+  parseStatementList();
+  temp_token = TOKENS[0];
+  if(temp_token.value != "}") raiseFatalError("Expected }, Found " + temp_token.value + " instead.");
+  TOKENS.shift();
+}
+
+function parseStatementList(){
+  if(TOKENS[0].value == "}") return; // Epsilon Transition
+  else {
+    //parseStatement();
+    parseStatementList();
+  }
+}
+
+function parseStatement(){
+
+  if(TOKENS[0].value == "print") return; //PrintStatement
+  else if(TOKENS[0].type == "Char") return; //AssignmentStatement
+  else if(TOKENS[0].type == "Type") return; //VarDecl
+  else if(TOKENS[0].value == "while") return; //WhileStatement
+  else if(TOKENS[0].value == "if") return; //IfStatement
+  else if(TOKENS[0].value == "{") return; //Block
+  else raiseFatalError("Unexpected token: " + TOKENS[0].value + " of type: " + TOKENS[0].type +
+                       "found  at Line: " + TOKENS[0].line + ", Position: " + TOKENS[0].position);
 }
 
 function writeOutput(message){
