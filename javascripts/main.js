@@ -35,7 +35,7 @@ function resetPage(){
   OUTPUT.empty();  // Clear the output text area.
 }
 
-function test(){
+function run(){
   resetPage();
   lexer();
   parser();
