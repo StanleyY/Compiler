@@ -15,6 +15,7 @@ OUTPUT = null;
 INPUT = null;
 INPUT_LINES = null;
 TOKENS = [];
+PARSE_POSITION = 0;
 
 RE_TYPE = /^(int|string|boolean)/g;
 RE_KEYWORD = /^(if|while|print)/g;
@@ -221,22 +222,22 @@ function checkInvalids(){
 
 function parseProgram(){
   parseBlock();
-  var temp_token = TOKENS.shift();
+  var temp_token = TOKENS[PARSE_POSITION];
   if(temp_token.value != "$") raiseFatalError("Expected $, Found " + temp_token.value + " instead.");
 }
 
 function parseBlock(){
-  var temp_token = TOKENS[0];
+  var temp_token = TOKENS[PARSE_POSITION];
   if(temp_token.value != "{") raiseFatalError("Expected {, Found " + temp_token.value + " instead.");
-  TOKENS.shift();
+  PARSE_POSITION++;
   parseStatementList();
-  temp_token = TOKENS[0];
+  temp_token = TOKENS[PARSE_POSITION];
   if(temp_token.value != "}") raiseFatalError("Expected }, Found " + temp_token.value + " instead.");
-  TOKENS.shift();
+  PARSE_POSITION++;
 }
 
 function parseStatementList(){
-  if(TOKENS[0].value == "}") return; // Epsilon Transition
+  if(TOKENS[PARSE_POSITION].value == "}") return; // Epsilon Transition
   else {
     //parseStatement();
     parseStatementList();
@@ -244,15 +245,19 @@ function parseStatementList(){
 }
 
 function parseStatement(){
+  if(TOKENS[PARSE_POSITION].value == "Type") return; //VarDecl
+  //else if(TOKENS[PARSE_POSITION].type == "Char") return; //AssignmentStatement
+  //else if(TOKENS[PARSE_POSITION].value == "print") return; //PrintStatement
+  //else if(TOKENS[PARSE_POSITION].value == "while") return; //WhileStatement
+  //else if(TOKENS[PARSE_POSITION].value == "if") return; //IfStatement
+  //else if(TOKENS[PARSE_POSITION].value == "{") return; //Block
+  else raiseFatalError("Unexpected token: " + TOKENS[PARSE_POSITION].value + " of type: " + TOKENS[PARSE_POSITION].type +
+                       "found at Line: " + TOKENS[PARSE_POSITION].line + ", Position: " + TOKENS[PARSE_POSITION].position);
+}
 
-  if(TOKENS[0].value == "print") return; //PrintStatement
-  else if(TOKENS[0].type == "Char") return; //AssignmentStatement
-  else if(TOKENS[0].type == "Type") return; //VarDecl
-  else if(TOKENS[0].value == "while") return; //WhileStatement
-  else if(TOKENS[0].value == "if") return; //IfStatement
-  else if(TOKENS[0].value == "{") return; //Block
-  else raiseFatalError("Unexpected token: " + TOKENS[0].value + " of type: " + TOKENS[0].type +
-                       "found  at Line: " + TOKENS[0].line + ", Position: " + TOKENS[0].position);
+function generateTokenError(expected, received, line, pos){
+  return ("Expected token type: " + expected + ". Got " +  received +
+          " instead. Line: " + line + ", Position: " + pos);
 }
 
 function writeOutput(message){
