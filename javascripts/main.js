@@ -259,13 +259,21 @@ function parseStatement(){
     PARSE_POSITION++;
     parseAssignment();
   }
-  else if(TOKENS[PARSE_POSITION].value == "print") {
+  else if(TOKENS[PARSE_POSITION].value == "print") { //PrintStatement
     printToken(TOKENS[PARSE_POSITION]);
     PARSE_POSITION++;
-    parsePrint();//PrintStatement
+    parsePrint();
   }
-  //else if(TOKENS[PARSE_POSITION].value == "while") return; //WhileStatement
-  //else if(TOKENS[PARSE_POSITION].value == "if") return; //IfStatement
+  else if(TOKENS[PARSE_POSITION].value == "while") {//WhileStatement
+    printToken(TOKENS[PARSE_POSITION]);
+    PARSE_POSITION++;
+    parseWhile();
+  }
+  else if(TOKENS[PARSE_POSITION].value == "if") {//IfStatement
+    printToken(TOKENS[PARSE_POSITION]);
+    PARSE_POSITION++;
+    parseIf();
+  }
   else if(TOKENS[PARSE_POSITION].value == "{") parseBlock(); //Block
   else raiseFatalError(generateUnexpectedTokenError(TOKENS[PARSE_POSITION]));
 }
@@ -286,6 +294,16 @@ function parseAssignment(){
   printToken(TOKENS[PARSE_POSITION]);
   PARSE_POSITION++;
   parseExpr();
+}
+
+function parseWhile(){
+  parseBooleanExpr();
+  parseBlock();
+}
+
+function parseIf(){
+  parseBooleanExpr();
+  parseBlock();
 }
 
 function parsePrint(){
