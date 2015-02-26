@@ -305,6 +305,31 @@ function parseIntExpr(){
   }
 }
 
+function parseBooleanExpr(){
+  if(TOKENS[PARSE_POSITION].type == "BoolVal") {
+    printToken(TOKENS[PARSE_POSITION]);
+    PARSE_POSITION++;
+  }
+  else if(TOKENS[PARSE_POSITION].value == "(") {
+    // Expected: ( Expr boolop Expr )
+    printToken(TOKENS[PARSE_POSITION]);
+    PARSE_POSITION++;
+
+    parseExpr();
+
+    if(TOKENS[PARSE_POSITION].type != "BoolOp") raiseFatalError(generateTokenError("BoolOp", TOKENS[PARSE_POSITION]));
+    printToken(TOKENS[PARSE_POSITION]);
+    PARSE_POSITION++;
+
+    parseExpr();
+
+    if(TOKENS[PARSE_POSITION].value != ")") raiseFatalError(generateTokenError(")", TOKENS[PARSE_POSITION]));
+    printToken(TOKENS[PARSE_POSITION]);
+    PARSE_POSITION++;
+  }
+  else raiseFatalError(generateTokenError("BoolVal", TOKENS[PARSE_POSITION]));
+}
+
 function parseStringExpr(){
   // Mismatched quotes should never show up here if the lexer is working properly.
   if(TOKENS[PARSE_POSITION].type != "Quote") raiseFatalError(generateTokenError("Quote", TOKENS[PARSE_POSITION]));
