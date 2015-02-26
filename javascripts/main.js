@@ -226,6 +226,8 @@ function parseProgram(){
   var temp_token = TOKENS[PARSE_POSITION];
   if(temp_token.value != "$") raiseFatalError("Expected $, Found " + temp_token.value + " instead.");
   printToken(TOKENS[PARSE_POSITION]);
+  PARSE_POSITION++;
+  if(TOKENS.length > PARSE_POSITION) raiseWarning("Input after EOF has been detected. Discarding all input after EOF.");
 }
 
 function parseBlock(){
