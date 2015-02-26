@@ -260,8 +260,7 @@ function parseStatement(){
   //else if(TOKENS[PARSE_POSITION].value == "while") return; //WhileStatement
   //else if(TOKENS[PARSE_POSITION].value == "if") return; //IfStatement
   //else if(TOKENS[PARSE_POSITION].value == "{") return; //Block
-  else raiseFatalError("Unexpected token: " + TOKENS[PARSE_POSITION].value + " of type: " + TOKENS[PARSE_POSITION].type +
-                       " found on Line: " + TOKENS[PARSE_POSITION].line + ", Position: " + TOKENS[PARSE_POSITION].pos);
+  else raiseFatalError(generateUnexpectedTokenError(TOKENS[PARSE_POSITION]));
 }
 
 function parseVarDecl(){
@@ -279,9 +278,14 @@ function printToken(token){
   writeOutput("Found " + token.type + " token. [" + token.value + "]");
 }
 
-function generateTokenError(expected, received, line, pos){
-  return ("Expected token type: " + expected + ". Got " +  received +
-          " instead. Line: " + line + ", Position: " + pos);
+function generateUnexpectedTokenError(token){
+  return ("Unexpected token: [" + token.value + "] of type: " + token.type +
+          " on line: " + token.line + ", Position: " + token.pos);
+}
+
+function generateTokenError(expected, token){
+  return ("Expected token of type: " + expected + ". Got " +  token.type +
+          " instead. Line: " + token.line + ", Position: " + token.pos);
 }
 
 function writeOutput(message){
