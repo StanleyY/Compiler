@@ -57,12 +57,15 @@ function bracesCheck(){
     current_token = TOKENS[index].value;
     if(current_token.match(re_braces) != null) stack.push(current_token);
     else if(current_token == "}") {
-      if(stack.pop() != "{") raiseFatalError("Expected ), found } instead. Line: " + TOKENS[index].line + ", Position: " + TOKENS[index].pos);
+      if(stack.length < 1) raiseFatalError("Unmatched } on Line: " + TOKENS[index - 1].line + ", Position: " + TOKENS[index - 1].pos);
+      if(stack.pop() != "{") raiseFatalError("Unexpected } found on Line: " + TOKENS[index].line + ", Position: " + TOKENS[index].pos);
     }
     else if(current_token == ")") {
-      if(stack.pop() != "(") raiseFatalError("Expected }, found ) instead. Line: " + TOKENS[index].line + ", Position: " + TOKENS[index].pos);
+      if(stack.length < 1) raiseFatalError("Unmatched ) on Line: " + TOKENS[index - 1].line + ", Position: " + TOKENS[index - 1].pos);
+      if(stack.pop() != "(") raiseFatalError("Unexpected ) found on Line: " + TOKENS[index].line + ", Position: " + TOKENS[index].pos);
     }
   }
+  if(stack.length > 0) raiseFatalError("Unmatched " + stack.pop() + " on Line: " + TOKENS[index - 1].line + ", Position: " + TOKENS[index - 1].pos);
 }
 
 function generateTokens(){
