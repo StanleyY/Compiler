@@ -39,6 +39,7 @@ function test(){
   resetPage();
   lexer();
   parser();
+  OUTPUT.scrollTop(0);
 }
 
 function parser(){
@@ -404,5 +405,6 @@ function raiseWarning(message){
 function raiseFatalError(message){
   message = "Fatal Error: " + message;
   writeOutput(message);
+  OUTPUT.scrollTop(OUTPUT[0].scrollHeight); // Scroll to the bottom.
   throw new Error(message);
 }
