@@ -129,7 +129,7 @@ function generateTokens(){
           generateToken(current_token, "Quote", line, pos);
           string_mode = false;
         }
-        else if(current_token.match(re_string) == null) raiseFatalError("Invalid string on line " + line + ". Only characters and space allowed.");
+        else if(current_token.match(re_string) == null) raiseFatalError("Invalid or unclosed string on line " + line + ". Only characters and space allowed.");
       }
       pos++;
     }
@@ -255,8 +255,13 @@ function parseStatement(){
     parseVarDecl();
     return;
   }
-  //else if(TOKENS[PARSE_POSITION].type == "Char") return; //AssignmentStatement
-  //else if(TOKENS[PARSE_POSITION].value == "print") return; //PrintStatement
+  else if(TOKENS[PARSE_POSITION].type == "Char") {//AssignmentStatement
+    printToken(TOKENS[PARSE_POSITION]);
+    PARSE_POSITION++;
+    parseAssignment();
+    return;
+  }
+  //else if(TOKENS[PARSE_POSITION].value == "print") return;//PrintStatement
   //else if(TOKENS[PARSE_POSITION].value == "while") return; //WhileStatement
   //else if(TOKENS[PARSE_POSITION].value == "if") return; //IfStatement
   //else if(TOKENS[PARSE_POSITION].value == "{") return; //Block
@@ -268,8 +273,48 @@ function parseVarDecl(){
 }
 
 function parseID(){
-  if(TOKENS[PARSE_POSITION].type != "Char") raiseFatalError(generateTokenError("Char", TOKENS[PARSE_POSITION].type,
-                                                            TOKENS[PARSE_POSITION].line, TOKENS[PARSE_POSITION].pos));
+  if(TOKENS[PARSE_POSITION].type != "Char") raiseFatalError(generateTokenError("Char", TOKENS[PARSE_POSITION]));
+  printToken(TOKENS[PARSE_POSITION]);
+  PARSE_POSITION++;
+}
+
+
+function parseAssignment(){
+  if(TOKENS[PARSE_POSITION].type != "Assignment") raiseFatalError(generateTokenError("Assignment", TOKENS[PARSE_POSITION]));
+  printToken(TOKENS[PARSE_POSITION]);
+  PARSE_POSITION++;
+  parseExpr();
+}
+
+function parseExpr(){
+  if(TOKENS[PARSE_POSITION].type == "Digit") parseIntExpr();
+  else if(TOKENS[PARSE_POSITION].type == "Quote") parseStringExpr();
+  else if(TOKENS[PARSE_POSITION].type == "BoolVal" || TOKENS[PARSE_POSITION].value == "(") parseBooleanExpr();
+  else if(TOKENS[PARSE_POSITION].type == "Char") parseID();
+  else raiseFatalError(generateUnexpectedTokenError(TOKENS[PARSE_POSITION]));
+}
+
+function parseIntExpr(){
+  if(TOKENS[PARSE_POSITION].type != "Digit") raiseFatalError(generateTokenError("Digit", TOKENS[PARSE_POSITION]));
+  printToken(TOKENS[PARSE_POSITION]);
+  PARSE_POSITION++;
+  if(TOKENS[PARSE_POSITION].type == "IntOp") {
+    printToken(TOKENS[PARSE_POSITION]);
+    PARSE_POSITION++;
+    parseExpr();
+  }
+}
+
+function parseStringExpr(){
+  // Mismatched quotes should never show up here if the lexer is working properly.
+  if(TOKENS[PARSE_POSITION].type != "Quote") raiseFatalError(generateTokenError("Quote", TOKENS[PARSE_POSITION]));
+  printToken(TOKENS[PARSE_POSITION]);
+  PARSE_POSITION++;
+  while(TOKENS[PARSE_POSITION].type == "Char"){
+    printToken(TOKENS[PARSE_POSITION]);
+    PARSE_POSITION++;
+  }
+  if(TOKENS[PARSE_POSITION].type != "Quote") raiseFatalError(generateTokenError("Quote", TOKENS[PARSE_POSITION]));
   printToken(TOKENS[PARSE_POSITION]);
   PARSE_POSITION++;
 }
