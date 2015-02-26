@@ -31,6 +31,7 @@ function resetPage(){
   INPUT = $('#inputTextArea');
   INPUT_LINES = INPUT.val().split("\n");
   TOKENS = [];
+  PARSE_POSITION = 0;
   OUTPUT.empty();  // Clear the output text area.
 }
 
@@ -224,35 +225,58 @@ function parseProgram(){
   parseBlock();
   var temp_token = TOKENS[PARSE_POSITION];
   if(temp_token.value != "$") raiseFatalError("Expected $, Found " + temp_token.value + " instead.");
+  printToken(TOKENS[PARSE_POSITION]);
 }
 
 function parseBlock(){
   var temp_token = TOKENS[PARSE_POSITION];
   if(temp_token.value != "{") raiseFatalError("Expected {, Found " + temp_token.value + " instead.");
+  printToken(TOKENS[PARSE_POSITION]);
   PARSE_POSITION++;
   parseStatementList();
   temp_token = TOKENS[PARSE_POSITION];
   if(temp_token.value != "}") raiseFatalError("Expected }, Found " + temp_token.value + " instead.");
+  printToken(TOKENS[PARSE_POSITION]);
   PARSE_POSITION++;
 }
 
 function parseStatementList(){
   if(TOKENS[PARSE_POSITION].value == "}") return; // Epsilon Transition
   else {
-    //parseStatement();
+    parseStatement();
     parseStatementList();
   }
 }
 
 function parseStatement(){
-  if(TOKENS[PARSE_POSITION].value == "Type") return; //VarDecl
+  if(TOKENS[PARSE_POSITION].type == "Type") { //VarDecl
+    printToken(TOKENS[PARSE_POSITION]);
+    PARSE_POSITION++;
+    parseVarDecl();
+    return;
+  }
   //else if(TOKENS[PARSE_POSITION].type == "Char") return; //AssignmentStatement
   //else if(TOKENS[PARSE_POSITION].value == "print") return; //PrintStatement
   //else if(TOKENS[PARSE_POSITION].value == "while") return; //WhileStatement
   //else if(TOKENS[PARSE_POSITION].value == "if") return; //IfStatement
   //else if(TOKENS[PARSE_POSITION].value == "{") return; //Block
   else raiseFatalError("Unexpected token: " + TOKENS[PARSE_POSITION].value + " of type: " + TOKENS[PARSE_POSITION].type +
-                       "found at Line: " + TOKENS[PARSE_POSITION].line + ", Position: " + TOKENS[PARSE_POSITION].position);
+                       " found on Line: " + TOKENS[PARSE_POSITION].line + ", Position: " + TOKENS[PARSE_POSITION].pos);
+}
+
+function parseVarDecl(){
+  parseID();
+}
+
+function parseID(){
+  if(TOKENS[PARSE_POSITION].type != "Char") raiseFatalError(generateTokenError("Char", TOKENS[PARSE_POSITION].type,
+                                                            TOKENS[PARSE_POSITION].line, TOKENS[PARSE_POSITION].pos));
+  printToken(TOKENS[PARSE_POSITION]);
+  PARSE_POSITION++;
+}
+
+function printToken(token){
+  writeOutput("Found " + token.type + " token. [" + token.value + "]");
 }
 
 function generateTokenError(expected, received, line, pos){
