@@ -1,4 +1,4 @@
-console.log("lexer loaded");
+console.log("Lexer loaded");
 
 RE_TYPE = /^(int|string|boolean)/g;
 RE_KEYWORD = /^(if|while|print)/g;
