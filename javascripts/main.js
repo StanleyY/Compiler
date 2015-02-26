@@ -134,7 +134,7 @@ function generateTokens(){
 
   if(EOF_found == false) {
     raiseWarning("Reached EOF but $ not found. Added and continuing to parse.");
-    generateToken(current_token, "EOF", line, pos);
+    generateToken("$", "EOF", line, pos);
   }
   console.log(printTokens());
   writeOutput("Lexer completed without errors.");
