@@ -15,6 +15,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="jquery-linedtextarea/jquery-linedtextarea.js"></script>
     <script src="javascripts/main.js"></script>
+    <script src="javascripts/testCases.js"></script>
     <script>
       //Run init once the page is done loading.
       $( document ).ready(function(){
@@ -56,7 +57,13 @@
           <div style="clear: both;"></div>
         </div>
         <br>
-        <button onClick="test()" style="margin-left: 50px;">Run</button>
+        <select id="testCaseSelection" style="margin-left: 50px;" onchange="changeTestCase()">
+          <option value="0">Test Case #1 - General Tests</option>
+          <option value="1">Test Case #2 - Variable Assignments</option>
+          <option value="2">Test Case #3 - If While Print</option>
+          <option value="3">Test Case #4 - Why IDs need whitespace</option>
+        </select>
+      <button onClick="test()" >Run</button>
       </section>
     </div>
 
