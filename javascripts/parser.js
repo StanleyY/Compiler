@@ -14,7 +14,7 @@ function processTerminalToken(node){
 }
 
 function processNonTerminalToken(node, type){
-  new_node = new TreeNode(type);
+  var new_node = new TreeNode(type);
   node.addChild(new_node);
   return new_node;
 }
@@ -49,7 +49,7 @@ function parseProgram(){
 }
 
 function parseBlock(node){
-  block_node = processNonTerminalToken(node, "Block");
+  var block_node = processNonTerminalToken(node, "Block");
   if(TOKENS[PARSE_POSITION].value != "{") raiseFatalError("Expected {, Found " + TOKENS[PARSE_POSITION].value + " instead.");
   processTerminalToken(block_node);
   parseStatementList(block_node);
@@ -58,7 +58,7 @@ function parseBlock(node){
 }
 
 function parseStatementList(node){
-  stmtList_node = processNonTerminalToken(node, "StmtList");
+  var stmtList_node = processNonTerminalToken(node, "StmtList");
   if(TOKENS[PARSE_POSITION].value == "}") {
     stmtList_node.addChild(new TreeNode("ε"));
     return; // Epsilon Transition
@@ -70,7 +70,7 @@ function parseStatementList(node){
 }
 
 function parseStatement(node){
-  stmt_node = processNonTerminalToken(node, "Stmt");
+  var stmt_node = processNonTerminalToken(node, "Stmt");
   if(TOKENS[PARSE_POSITION].type == "Type") { //VarDecl
     processTerminalToken(stmt_node);
     parseVarDecl(stmt_node);
@@ -96,38 +96,38 @@ function parseStatement(node){
 }
 
 function parseVarDecl(node){
-  var_decl_node = processNonTerminalToken(node, "VarDecl");
+  var var_decl_node = processNonTerminalToken(node, "VarDecl");
   parseID(var_decl_node);
 }
 
 function parseID(node){
-  id_node = processNonTerminalToken(node, "ID");
+  var id_node = processNonTerminalToken(node, "ID");
   if(TOKENS[PARSE_POSITION].type != "Char") raiseFatalError(generateTokenError("Char", TOKENS[PARSE_POSITION]));
   processTerminalToken(id_node);
 }
 
 
 function parseAssignment(node){
-  assignment_node = processNonTerminalToken(node, "Assignment");
+  var assignment_node = processNonTerminalToken(node, "Assignment");
   if(TOKENS[PARSE_POSITION].type != "Assignment") raiseFatalError(generateTokenError("Assignment", TOKENS[PARSE_POSITION]));
   processTerminalToken(assignment_node);
   parseExpr(assignment_node);
 }
 
 function parseWhile(node){
-  while_node = processNonTerminalToken(node, "While");
+  var while_node = processNonTerminalToken(node, "While");
   parseBooleanExpr(while_node);
   parseBlock(while_node);
 }
 
 function parseIf(node){
-  if_node = processNonTerminalToken(node, "If");
+  var if_node = processNonTerminalToken(node, "If");
   parseBooleanExpr(if_node);
   parseBlock(if_node);
 }
 
 function parsePrint(node){
-  print_node = processNonTerminalToken(node, "Print");
+  var print_node = processNonTerminalToken(node, "Print");
   if(TOKENS[PARSE_POSITION].value != "(") raiseFatalError(generateTokenError("(", TOKENS[PARSE_POSITION]));
   processTerminalToken(print_node);
   parseExpr(print_node);
@@ -137,7 +137,7 @@ function parsePrint(node){
 }
 
 function parseExpr(node){
-  expr_node = processNonTerminalToken(node, "Expr");
+  var expr_node = processNonTerminalToken(node, "Expr");
   if(TOKENS[PARSE_POSITION].type == "Digit") parseIntExpr(expr_node);
   else if(TOKENS[PARSE_POSITION].type == "Quote") parseStringExpr(expr_node);
   else if(TOKENS[PARSE_POSITION].type == "BoolVal" || TOKENS[PARSE_POSITION].value == "(") parseBooleanExpr(expr_node);
@@ -146,7 +146,7 @@ function parseExpr(node){
 }
 
 function parseIntExpr(node){
-  int_node = processNonTerminalToken(node, "IntExpr");
+  var int_node = processNonTerminalToken(node, "IntExpr");
   if(TOKENS[PARSE_POSITION].type != "Digit") raiseFatalError(generateTokenError("Digit", TOKENS[PARSE_POSITION]));
   processTerminalToken(int_node);
   if(TOKENS[PARSE_POSITION].type == "IntOp") {
@@ -156,7 +156,7 @@ function parseIntExpr(node){
 }
 
 function parseBooleanExpr(node){
-  boolean_node = processNonTerminalToken(node, "BooleanExpr");
+  var boolean_node = processNonTerminalToken(node, "BooleanExpr");
   if(TOKENS[PARSE_POSITION].type == "BoolVal") {
     processTerminalToken(boolean_node);
   }
@@ -178,7 +178,7 @@ function parseBooleanExpr(node){
 }
 
 function parseStringExpr(node){
-  string_node = processNonTerminalToken(node, "StringExpr");
+  var string_node = processNonTerminalToken(node, "StringExpr");
   // Mismatched quotes should never show up here if the lexer is working properly.
   if(TOKENS[PARSE_POSITION].type != "Quote") raiseFatalError(generateTokenError("Quote", TOKENS[PARSE_POSITION]));
   processTerminalToken(string_node);
