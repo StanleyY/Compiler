@@ -9,15 +9,13 @@ function parser(){
 
 function processTerminalToken(node){
   printToken(TOKENS[PARSE_POSITION]);
-  node.addChild(new TreeNode(TOKENS[PARSE_POSITION]));
+  node.addChild(new TreeNode(TOKENS[PARSE_POSITION].value));
   PARSE_POSITION++;
 }
 
-function processNonTerminalToken(node){
-  printToken(TOKENS[PARSE_POSITION]);
-  new_node = new TreeNode(TOKENS[PARSE_POSITION]);
+function processNonTerminalToken(node, type){
+  new_node = new TreeNode(type);
   node.addChild(new_node);
-  PARSE_POSITION++;
   return new_node;
 }
 
@@ -51,29 +49,31 @@ function parseProgram(){
 }
 
 function parseBlock(node){
-  block_node = new TreeNode("Block");
-  node.addChild(block_node);
+  block_node = processNonTerminalToken(node, "Block");
   if(TOKENS[PARSE_POSITION].value != "{") raiseFatalError("Expected {, Found " + TOKENS[PARSE_POSITION].value + " instead.");
-  processTerminalToken(node);
-  parseStatementList();
+  processTerminalToken(block_node);
+  parseStatementList(block_node);
   if(TOKENS[PARSE_POSITION].value != "}") raiseFatalError("Expected }, Found " + TOKENS[PARSE_POSITION].value + " instead.");
-  printToken(TOKENS[PARSE_POSITION]);
-  PARSE_POSITION++;
+  processTerminalToken(block_node);
 }
 
-function parseStatementList(){
-  if(TOKENS[PARSE_POSITION].value == "}") return; // Epsilon Transition
+function parseStatementList(node){
+  stmtList_node = processNonTerminalToken(node, "StmtList");
+  if(TOKENS[PARSE_POSITION].value == "}") {
+    stmtList_node.addChild(new TreeNode("ε"));
+    return; // Epsilon Transition
+  }
   else {
-    parseStatement();
-    parseStatementList();
+    parseStatement(stmtList_node);
+    parseStatementList(stmtList_node);
   }
 }
 
-function parseStatement(){
+function parseStatement(node){
+  stmt_node = processNonTerminalToken(node, "Stmt");
   if(TOKENS[PARSE_POSITION].type == "Type") { //VarDecl
-    printToken(TOKENS[PARSE_POSITION]);
-    PARSE_POSITION++;
-    parseVarDecl();
+    processTerminalToken(stmt_node);
+    parseVarDecl(stmt_node);
   }
   else if(TOKENS[PARSE_POSITION].type == "Char") {//AssignmentStatement
     printToken(TOKENS[PARSE_POSITION]);
@@ -99,14 +99,15 @@ function parseStatement(){
   else raiseFatalError(generateUnexpectedTokenError(TOKENS[PARSE_POSITION]));
 }
 
-function parseVarDecl(){
-  parseID();
+function parseVarDecl(node){
+  var_decl_node = processNonTerminalToken(node, "VarDecl");
+  parseID(var_decl_node);
 }
 
-function parseID(){
+function parseID(node){
+  id_node = processNonTerminalToken(node, "ID");
   if(TOKENS[PARSE_POSITION].type != "Char") raiseFatalError(generateTokenError("Char", TOKENS[PARSE_POSITION]));
-  printToken(TOKENS[PARSE_POSITION]);
-  PARSE_POSITION++;
+  processTerminalToken(id_node);
 }
 
 
