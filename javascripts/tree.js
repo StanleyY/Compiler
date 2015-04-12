@@ -13,11 +13,11 @@ function addChild(new_child){
 }
 
 function printTree(root){
-  current_level = [];
-  next_level = [];
-  current_node = null;
+  var current_level = [];
+  var next_level = [];
+  var current_node = null;
   current_level.push(root);
-  output_string = "";
+  var output_string = "";
 
   while(current_level.length != 0){
     current_node = current_level.shift();
@@ -36,7 +36,6 @@ function printTree(root){
 
 function generateJSONFromTree(root){
   var node_num = 0;
-  //This inner function thing is crazy.
   function generateJSONFromNode(node){
     var id = "node" + node_num;
     node_num++;
@@ -45,7 +44,7 @@ function generateJSONFromTree(root){
 
     if(node.children.length != 0){
       children = "[";
-      for(i = 0; i < node.children.length; i++){
+      for(var i = 0; node.children[i] != undefined; i++){
         children += generateJSONFromNode(node.children[i]) + ",";
       }
       children = children.substring(0, children.length - 1); // remove extra comma
