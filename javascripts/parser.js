@@ -150,10 +150,15 @@ function parseExpr(node){
   else raiseFatalError(generateUnexpectedTokenError(TOKENS[PARSE_POSITION]));
 }
 
+function parseDigit(node){
+  var digit_node = processNonTerminalToken(node, "Digit");
+  processTerminalToken(digit_node);
+}
+
 function parseIntExpr(node){
   var int_node = processNonTerminalToken(node, "IntExpr");
   if(TOKENS[PARSE_POSITION].type != "Digit") raiseFatalError(generateTokenError("Digit", TOKENS[PARSE_POSITION]));
-  processTerminalToken(int_node);
+  parseDigit(int_node);
   if(TOKENS[PARSE_POSITION].type == "IntOp") {
     processTerminalToken(int_node);
     parseExpr(int_node);
@@ -161,7 +166,7 @@ function parseIntExpr(node){
 }
 
 function parseBooleanExpr(node){
-  var boolean_node = processNonTerminalToken(node, "BooleanExpr");
+  var boolean_node = processNonTerminalToken(node, "BoolExpr");
   if(TOKENS[PARSE_POSITION].type == "BoolVal") {
     processTerminalToken(boolean_node);
   }
