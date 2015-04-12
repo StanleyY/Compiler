@@ -101,10 +101,20 @@ function parseVarDecl(node){
   parseID(var_decl_node);
 }
 
+function parseChar(node){
+  var char_node = processNonTerminalToken(node, "Char");
+  processTerminalToken(char_node);
+}
+
+function parseSpace(node){
+  var space_node = processNonTerminalToken(node, "Space");
+  processTerminalToken(space_node);
+}
+
 function parseID(node){
   var id_node = processNonTerminalToken(node, "ID");
   if(TOKENS[PARSE_POSITION].type != "Char") raiseFatalError(generateTokenError("Char", TOKENS[PARSE_POSITION]));
-  processTerminalToken(id_node);
+  parseChar(id_node);
 }
 
 
@@ -165,10 +175,15 @@ function parseIntExpr(node){
   }
 }
 
+function parseBooleanVal(node){
+  var boolval_node = processNonTerminalToken(node, "BoolVal");
+  processTerminalToken(boolval_node);
+}
+
 function parseBooleanExpr(node){
   var boolean_node = processNonTerminalToken(node, "BoolExpr");
   if(TOKENS[PARSE_POSITION].type == "BoolVal") {
-    processTerminalToken(boolean_node);
+    parseBooleanVal(boolean_node);
   }
   else if(TOKENS[PARSE_POSITION].value == "(") {
     // Expected: ( Expr boolop Expr )
@@ -192,9 +207,24 @@ function parseStringExpr(node){
   // Mismatched quotes should never show up here if the lexer is working properly.
   if(TOKENS[PARSE_POSITION].type != "Quote") raiseFatalError(generateTokenError("Quote", TOKENS[PARSE_POSITION]));
   processTerminalToken(string_node);
-  while(TOKENS[PARSE_POSITION].type == "Char"){
-    processTerminalToken(string_node);
-  }
+  parseCharList(string_node);
   if(TOKENS[PARSE_POSITION].type != "Quote") raiseFatalError(generateTokenError("Quote", TOKENS[PARSE_POSITION]));
   processTerminalToken(string_node);
+}
+
+function parseCharList(node){
+  var char_list_node = processNonTerminalToken(node, "CharList");
+  if(TOKENS[PARSE_POSITION].type == "Quote") {// Epsilon
+    char_list_node.addChild(new TreeNode("ε"));
+    return;
+  }
+  if(TOKENS[PARSE_POSITION].type != "Char") raiseFatalError(generateTokenError("Char", TOKENS[PARSE_POSITION]));
+  if(TOKENS[PARSE_POSITION].value == " ") {
+    parseSpace(char_list_node);
+    parseCharList(char_list_node);
+  }
+  else {
+    parseChar(char_list_node);
+    parseCharList(char_list_node);
+  }
 }
