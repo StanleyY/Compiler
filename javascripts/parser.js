@@ -7,6 +7,20 @@ function parser(){
   writeOutput("Parser completed without errors.");
 }
 
+function processTerminalToken(node){
+  printToken(TOKENS[PARSE_POSITION]);
+  node.addChild(new TreeNode(TOKENS[PARSE_POSITION]));
+  PARSE_POSITION++;
+}
+
+function processNonTerminalToken(node){
+  printToken(TOKENS[PARSE_POSITION]);
+  new_node = new TreeNode(TOKENS[PARSE_POSITION]);
+  node.addChild(new_node);
+  PARSE_POSITION++;
+  return new_node;
+}
+
 function bracesCheck(){
   var index = 0;
   var stack = new Array();
@@ -28,22 +42,21 @@ function bracesCheck(){
 }
 
 function parseProgram(){
-  parseBlock();
-  var temp_token = TOKENS[PARSE_POSITION];
-  if(temp_token.value != "$") raiseFatalError("Expected $, Found " + temp_token.value + " instead.");
+  CST = new TreeNode("Program");
+  parseBlock(CST);
+  if(TOKENS[PARSE_POSITION].value != "$") raiseFatalError("Expected $, Found " + TOKENS[PARSE_POSITION].value + " instead.");
   printToken(TOKENS[PARSE_POSITION]);
   PARSE_POSITION++;
   if(TOKENS.length > PARSE_POSITION) raiseWarning("Input after EOF has been detected. Discarding all input after EOF.");
 }
 
-function parseBlock(){
-  var temp_token = TOKENS[PARSE_POSITION];
-  if(temp_token.value != "{") raiseFatalError("Expected {, Found " + temp_token.value + " instead.");
-  printToken(TOKENS[PARSE_POSITION]);
-  PARSE_POSITION++;
+function parseBlock(node){
+  block_node = new TreeNode("Block");
+  node.addChild(block_node);
+  if(TOKENS[PARSE_POSITION].value != "{") raiseFatalError("Expected {, Found " + TOKENS[PARSE_POSITION].value + " instead.");
+  processTerminalToken(node);
   parseStatementList();
-  temp_token = TOKENS[PARSE_POSITION];
-  if(temp_token.value != "}") raiseFatalError("Expected }, Found " + temp_token.value + " instead.");
+  if(TOKENS[PARSE_POSITION].value != "}") raiseFatalError("Expected }, Found " + TOKENS[PARSE_POSITION].value + " instead.");
   printToken(TOKENS[PARSE_POSITION]);
   PARSE_POSITION++;
 }

@@ -6,6 +6,7 @@ INPUT = null;
 INPUT_LINES = null;
 TOKENS = [];
 PARSE_POSITION = 0;
+CST = null;
 
 function init(){
   $('#inputTextArea').linedtextarea();
