@@ -1,6 +1,6 @@
 console.log("Test cases loaded");
 
-TEST_CASE_0 = "{\nint x\nx = 1\n\nstring s\ns = \"test\"\n\nboolean b\nb = true\n\nif (x == 1) {\nprint(s)\n}\n} $";
+TEST_CASE_0 = "{\nint x\nx = 1\n\nx = 1 + x\n\nstring s\ns = \"te st\"\n\nboolean b\nb = true\n\nif (x == 1) {\nprint(s)\n}\n\nwhile false {}\n} $";
 
 TEST_CASE_1 = "{\nint x\nx=9\nx = 1 + 1 + 1\n\nstring s\ns      =\"\"\ns =         \"long    s p a c e s\"\n\nboolean b\nb =     true\nb   =      false\nb = ((true == true) != false)\n} $";
 
