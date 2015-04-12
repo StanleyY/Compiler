@@ -18,7 +18,7 @@ function printTree(root){
   output_string = "";
 
   while(current_level.length != 0){
-    current_node = current_level.pop();
+    current_node = current_level.shift();
     output_string += current_node.val + ", ";
     if(current_node.children.length > 0){
       next_level.push.apply(next_level, current_node.children);
