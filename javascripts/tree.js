@@ -40,6 +40,9 @@ function generateJSONFromTree(root){
     var id = "node" + node_num;
     node_num++;
     var name = node.val;
+    if(name == "\""){
+      name = "\\\"";
+    }
     var children = "[]";
 
     if(node.children.length != 0){
