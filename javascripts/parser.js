@@ -76,26 +76,22 @@ function parseStatement(node){
     parseVarDecl(stmt_node);
   }
   else if(TOKENS[PARSE_POSITION].type == "Char") {//AssignmentStatement
-    printToken(TOKENS[PARSE_POSITION]);
-    PARSE_POSITION++;
-    parseAssignment();
+    processTerminalToken(stmt_node);
+    parseAssignment(stmt_node);
   }
   else if(TOKENS[PARSE_POSITION].value == "print") { //PrintStatement
-    printToken(TOKENS[PARSE_POSITION]);
-    PARSE_POSITION++;
-    parsePrint();
+    processTerminalToken(stmt_node);
+    parsePrint(stmt_node);
   }
   else if(TOKENS[PARSE_POSITION].value == "while") {//WhileStatement
-    printToken(TOKENS[PARSE_POSITION]);
-    PARSE_POSITION++;
-    parseWhile();
+    processTerminalToken(stmt_node);
+    parseWhile(stmt_node);
   }
   else if(TOKENS[PARSE_POSITION].value == "if") {//IfStatement
-    printToken(TOKENS[PARSE_POSITION]);
-    PARSE_POSITION++;
-    parseIf();
+    processTerminalToken(stmt_node);
+    parseIf(stmt_node);
   }
-  else if(TOKENS[PARSE_POSITION].value == "{") parseBlock(); //Block
+  else if(TOKENS[PARSE_POSITION].value == "{") parseBlock(stmt_node); //Block
   else raiseFatalError(generateUnexpectedTokenError(TOKENS[PARSE_POSITION]));
 }
 
@@ -111,89 +107,84 @@ function parseID(node){
 }
 
 
-function parseAssignment(){
+function parseAssignment(node){
+  assignment_node = processNonTerminalToken(node, "Assignment");
   if(TOKENS[PARSE_POSITION].type != "Assignment") raiseFatalError(generateTokenError("Assignment", TOKENS[PARSE_POSITION]));
-  printToken(TOKENS[PARSE_POSITION]);
-  PARSE_POSITION++;
-  parseExpr();
+  processTerminalToken(assignment_node);
+  parseExpr(assignment_node);
 }
 
-function parseWhile(){
-  parseBooleanExpr();
-  parseBlock();
+function parseWhile(node){
+  while_node = processNonTerminalToken(node, "While");
+  parseBooleanExpr(while_node);
+  parseBlock(while_node);
 }
 
-function parseIf(){
-  parseBooleanExpr();
-  parseBlock();
+function parseIf(node){
+  if_node = processNonTerminalToken(node, "If");
+  parseBooleanExpr(if_node);
+  parseBlock(if_node);
 }
 
-function parsePrint(){
+function parsePrint(node){
+  print_node = processNonTerminalToken(node, "Print");
   if(TOKENS[PARSE_POSITION].value != "(") raiseFatalError(generateTokenError("(", TOKENS[PARSE_POSITION]));
-  printToken(TOKENS[PARSE_POSITION]);
-  PARSE_POSITION++;
-
-  parseExpr();
+  processTerminalToken(print_node);
+  parseExpr(print_node);
 
   if(TOKENS[PARSE_POSITION].value != ")") raiseFatalError(generateTokenError(")", TOKENS[PARSE_POSITION]));
-  printToken(TOKENS[PARSE_POSITION]);
-  PARSE_POSITION++;
+  processTerminalToken(print_node);
 }
 
-function parseExpr(){
-  if(TOKENS[PARSE_POSITION].type == "Digit") parseIntExpr();
-  else if(TOKENS[PARSE_POSITION].type == "Quote") parseStringExpr();
-  else if(TOKENS[PARSE_POSITION].type == "BoolVal" || TOKENS[PARSE_POSITION].value == "(") parseBooleanExpr();
-  else if(TOKENS[PARSE_POSITION].type == "Char") parseID();
+function parseExpr(node){
+  expr_node = processNonTerminalToken(node, "Expr");
+  if(TOKENS[PARSE_POSITION].type == "Digit") parseIntExpr(expr_node);
+  else if(TOKENS[PARSE_POSITION].type == "Quote") parseStringExpr(expr_node);
+  else if(TOKENS[PARSE_POSITION].type == "BoolVal" || TOKENS[PARSE_POSITION].value == "(") parseBooleanExpr(expr_node);
+  else if(TOKENS[PARSE_POSITION].type == "Char") parseID(expr_node);
   else raiseFatalError(generateUnexpectedTokenError(TOKENS[PARSE_POSITION]));
 }
 
-function parseIntExpr(){
+function parseIntExpr(node){
+  int_node = processNonTerminalToken(node, "IntExpr");
   if(TOKENS[PARSE_POSITION].type != "Digit") raiseFatalError(generateTokenError("Digit", TOKENS[PARSE_POSITION]));
-  printToken(TOKENS[PARSE_POSITION]);
-  PARSE_POSITION++;
+  processTerminalToken(int_node);
   if(TOKENS[PARSE_POSITION].type == "IntOp") {
-    printToken(TOKENS[PARSE_POSITION]);
-    PARSE_POSITION++;
-    parseExpr();
+    processTerminalToken(int_node);
+    parseExpr(int_node);
   }
 }
 
-function parseBooleanExpr(){
+function parseBooleanExpr(node){
+  boolean_node = processNonTerminalToken(node, "BooleanExpr");
   if(TOKENS[PARSE_POSITION].type == "BoolVal") {
-    printToken(TOKENS[PARSE_POSITION]);
-    PARSE_POSITION++;
+    processTerminalToken(boolean_node);
   }
   else if(TOKENS[PARSE_POSITION].value == "(") {
     // Expected: ( Expr boolop Expr )
-    printToken(TOKENS[PARSE_POSITION]);
-    PARSE_POSITION++;
+    processTerminalToken(boolean_node);
 
-    parseExpr();
+    parseExpr(boolean_node);
 
     if(TOKENS[PARSE_POSITION].type != "BoolOp") raiseFatalError(generateTokenError("BoolOp", TOKENS[PARSE_POSITION]));
-    printToken(TOKENS[PARSE_POSITION]);
-    PARSE_POSITION++;
+    processTerminalToken(boolean_node);
 
-    parseExpr();
+    parseExpr(boolean_node);
 
     if(TOKENS[PARSE_POSITION].value != ")") raiseFatalError(generateTokenError(")", TOKENS[PARSE_POSITION]));
-    printToken(TOKENS[PARSE_POSITION]);
-    PARSE_POSITION++;
+    processTerminalToken(boolean_node);
   }
   else raiseFatalError(generateTokenError("BoolVal", TOKENS[PARSE_POSITION]));
 }
 
-function parseStringExpr(){
+function parseStringExpr(node){
+  string_node = processNonTerminalToken(node, "StringExpr");
   // Mismatched quotes should never show up here if the lexer is working properly.
   if(TOKENS[PARSE_POSITION].type != "Quote") raiseFatalError(generateTokenError("Quote", TOKENS[PARSE_POSITION]));
-  printToken(TOKENS[PARSE_POSITION]);
-  PARSE_POSITION++;
+  processTerminalToken(string_node);
   while(TOKENS[PARSE_POSITION].type == "Char"){
-    printToken(TOKENS[PARSE_POSITION]);
-    PARSE_POSITION++;
+    processTerminalToken(string_node);
   }
   if(TOKENS[PARSE_POSITION].type != "Quote") raiseFatalError(generateTokenError("Quote", TOKENS[PARSE_POSITION]));
-  printToken(TOKENS[PARSE_POSITION]);
-  PARSE_POSITION++;
+  processTerminalToken(string_node);
 }
