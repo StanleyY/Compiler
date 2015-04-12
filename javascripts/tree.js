@@ -1,5 +1,7 @@
 console.log("Tree JS loaded.");
 
+JSON_TEMPLATE = '{"id": "{0}",  "name": "{1}",  "data": {}, "children": {2} }';
+
 function TreeNode(value) {
   this.val = value;
   this.children = [];
@@ -30,4 +32,28 @@ function printTree(root){
       next_level = [];
     }
   }
+}
+
+function generateJSONFromTree(root){
+  var node_num = 0;
+  //This inner function thing is crazy.
+  function generateJSONFromNode(node){
+    var id = "node" + node_num;
+    node_num++;
+    var name = node.val;
+    var children = "[]";
+
+    if(node.children.length != 0){
+      children = "[";
+      for(i = 0; i < node.children.length; i++){
+        children += generateJSONFromNode(node.children[i]) + ",";
+      }
+      children = children.substring(0, children.length - 1); // remove extra comma
+      children += "]";
+    }
+    return JSON_TEMPLATE.format(id, name, children);
+  }
+
+  return generateJSONFromNode(root);
+
 }

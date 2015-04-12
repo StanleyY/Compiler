@@ -21,7 +21,8 @@ function init(){
   $('#inputTextArea').linedtextarea();
   resetPage();
   defaultTestCase();
-  generateCSTGraph(CST);
+  var temp = {"id": "node",  "name": "1",  "data": {},"children": [{"id": "node1",  "name": "2",  "data": {},"children": []}]};
+  generateCSTGraph(temp);
 }
 
 function resetPage(){
@@ -39,7 +40,7 @@ function run(){
   lexer();
   parser();
   OUTPUT.scrollTop(0);
-  if(CST != null) generateCSTGraph(CST);
+  if(CST != null) generateCSTGraph(JSON.parse(generateJSONFromTree(CST)));
 }
 
 function writeOutput(message){
@@ -58,8 +59,9 @@ function raiseFatalError(message){
   throw new Error(message);
 }
 
-function generateCSTGraph(CST){
-  var json = {"id": "node",  "name": "1",  "data": {},"children": [{"id": "node1",  "name": "2",  "data": {},"children": []}]};
+function generateCSTGraph(input_json){
+  //If your browser doesn't support JSON, I don't think you should be using my compiler.
+  var json = input_json;
 
   var st = new $jit.ST({
       injectInto: 'infovis',
