@@ -440,3 +440,13 @@ Small Device Styles
   }
 
 }
+
+#infovis {
+  
+  background-color: black;
+  position:relative;
+  width:300px;
+  height:300px;
+  margin:auto;
+  overflow:hidden;
+}
