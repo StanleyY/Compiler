@@ -72,31 +72,32 @@ function parseStatementList(node){
 function parseStatement(node){
   var stmt_node = processNonTerminalToken(node, "Stmt");
   if(TOKENS[PARSE_POSITION].type == "Type") { //VarDecl
-    processTerminalToken(stmt_node);
     parseVarDecl(stmt_node);
   }
   else if(TOKENS[PARSE_POSITION].type == "Char") {//AssignmentStatement
-    processTerminalToken(stmt_node);
     parseAssignment(stmt_node);
   }
   else if(TOKENS[PARSE_POSITION].value == "print") { //PrintStatement
-    processTerminalToken(stmt_node);
     parsePrint(stmt_node);
   }
   else if(TOKENS[PARSE_POSITION].value == "while") {//WhileStatement
-    processTerminalToken(stmt_node);
     parseWhile(stmt_node);
   }
   else if(TOKENS[PARSE_POSITION].value == "if") {//IfStatement
-    processTerminalToken(stmt_node);
     parseIf(stmt_node);
   }
   else if(TOKENS[PARSE_POSITION].value == "{") parseBlock(stmt_node); //Block
   else raiseFatalError(generateUnexpectedTokenError(TOKENS[PARSE_POSITION]));
 }
 
+function parseType(node){
+  var type_node = processNonTerminalToken(node, "Type");
+  processTerminalToken(type_node);
+}
+
 function parseVarDecl(node){
   var var_decl_node = processNonTerminalToken(node, "VarDecl");
+  parseType(var_decl_node);
   parseID(var_decl_node);
 }
 
@@ -108,26 +109,30 @@ function parseID(node){
 
 
 function parseAssignment(node){
-  var assignment_node = processNonTerminalToken(node, "Assignment");
+  var assignment_node = processNonTerminalToken(node, "AssignStmt");
+  parseID(assignment_node);
   if(TOKENS[PARSE_POSITION].type != "Assignment") raiseFatalError(generateTokenError("Assignment", TOKENS[PARSE_POSITION]));
   processTerminalToken(assignment_node);
   parseExpr(assignment_node);
 }
 
 function parseWhile(node){
-  var while_node = processNonTerminalToken(node, "While");
+  var while_node = processNonTerminalToken(node, "WhileStmt");
+  processTerminalToken(while_node);
   parseBooleanExpr(while_node);
   parseBlock(while_node);
 }
 
 function parseIf(node){
-  var if_node = processNonTerminalToken(node, "If");
+  var if_node = processNonTerminalToken(node, "IfStmt");
+  processTerminalToken(if_node);
   parseBooleanExpr(if_node);
   parseBlock(if_node);
 }
 
 function parsePrint(node){
-  var print_node = processNonTerminalToken(node, "Print");
+  var print_node = processNonTerminalToken(node, "PrintStmt");
+  processTerminalToken(print_node);
   if(TOKENS[PARSE_POSITION].value != "(") raiseFatalError(generateTokenError("(", TOKENS[PARSE_POSITION]));
   processTerminalToken(print_node);
   parseExpr(print_node);

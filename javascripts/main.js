@@ -69,7 +69,7 @@ function generateCSTGraph(input_json){
       duration: 500,
       transition: $jit.Trans.Quart.easeInOut,
       constrained: false,
-      levelsToShow: 10,
+      levelsToShow: 200,
       levelDistance: 10,
       Navigation: {
         enable:true,
