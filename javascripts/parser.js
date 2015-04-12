@@ -165,12 +165,17 @@ function parseDigit(node){
   processTerminalToken(digit_node);
 }
 
+function parseIntOp(node){
+  var intop_node = processNonTerminalToken(node, "IntOp");
+  processTerminalToken(intop_node);
+}
+
 function parseIntExpr(node){
   var int_node = processNonTerminalToken(node, "IntExpr");
   if(TOKENS[PARSE_POSITION].type != "Digit") raiseFatalError(generateTokenError("Digit", TOKENS[PARSE_POSITION]));
   parseDigit(int_node);
   if(TOKENS[PARSE_POSITION].type == "IntOp") {
-    processTerminalToken(int_node);
+    parseIntOp(int_node);
     parseExpr(int_node);
   }
 }
@@ -178,6 +183,11 @@ function parseIntExpr(node){
 function parseBooleanVal(node){
   var boolval_node = processNonTerminalToken(node, "BoolVal");
   processTerminalToken(boolval_node);
+}
+
+function parseBoolOp(node){
+  var boolop_node = processNonTerminalToken(node, "BoolOp");
+  processTerminalToken(boolop_node);
 }
 
 function parseBooleanExpr(node){
@@ -192,7 +202,7 @@ function parseBooleanExpr(node){
     parseExpr(boolean_node);
 
     if(TOKENS[PARSE_POSITION].type != "BoolOp") raiseFatalError(generateTokenError("BoolOp", TOKENS[PARSE_POSITION]));
-    processTerminalToken(boolean_node);
+    parseBoolOp(boolean_node);
 
     parseExpr(boolean_node);
 
