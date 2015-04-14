@@ -1,9 +1,19 @@
 AST = null;
 SYMBOL_TABLE = {};
+CURRENT_SCOPE = -1;
+MAX_SCOPE = -1;
+PREVIOUS_SCOPE = [];
 
 function run_SA(){
   AST = generateAST(CST);
+  console.log(SYMBOL_TABLE);
   writeOutput("AST generated.");
+}
+
+function insertSymbol(id_type, id_node){
+  console.log(id_node);
+  if(SYMBOL_TABLE[id_node.val] != undefined) raiseFatalError("Redeclared ID at line: " + id_node.line + " position: " + id_node.pos);
+  SYMBOL_TABLE[id_node.val] = {scope: CURRENT_SCOPE, line: id_node.line, type: id_type};
 }
 
 function generateAST(cst){
@@ -16,11 +26,15 @@ function generateAST(cst){
 }
 
 function generateBlockAST(ast_node, block_node){
+  MAX_SCOPE++;
+  PREVIOUS_SCOPE[MAX_SCOPE] = CURRENT_SCOPE;
+  CURRENT_SCOPE = MAX_SCOPE;
   ast_node = generateNewChild(ast_node, "Block");
   // Ignoring the first and last children because they are braces.
   for(var i = 1; i < block_node.children.length - 1; i++){
     generateStmtListAST(ast_node, block_node.getChild(i));
   }
+  CURRENT_SCOPE = PREVIOUS_SCOPE[CURRENT_SCOPE];
 }
 
 function generateStmtListAST(ast_node, stmt_list_node){
@@ -47,6 +61,8 @@ function generateStmtAST(ast_node, stmt_node){
 }
 
 function generateVarDeclAST(ast_node, var_decl_node){
+  insertSymbol(getTypeAST(var_decl_node.getChild(0)).val, getIDAST(var_decl_node.getChild(1)));
+
   ast_node = generateNewChild(ast_node, "VarDecl");
   ast_node.addChild(getTypeAST(var_decl_node.getChild(0)));
   ast_node.addChild(getIDAST(var_decl_node.getChild(1)));

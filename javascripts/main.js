@@ -31,6 +31,9 @@ function resetPage(){
   TOKENS = [];
   PARSE_POSITION = 0;
   SYMBOL_TABLE = {};
+  CURRENT_SCOPE = -1;
+  MAX_SCOPE = -1;
+  PREVIOUS_SCOPE = [];
   AST = null;
   CST = null;
   $('#graph-switch').prop('checked', true);
