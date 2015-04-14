@@ -9,7 +9,10 @@ function parser(){
 
 function processTerminalToken(node){
   printToken(TOKENS[PARSE_POSITION]);
-  node.addChild(new TreeNode(TOKENS[PARSE_POSITION].value));
+  var new_node = new TreeNode(TOKENS[PARSE_POSITION].value);
+  new_node.line = TOKENS[PARSE_POSITION].line;
+  new_node.pos = TOKENS[PARSE_POSITION].pos;
+  node.addChild(new_node);
   PARSE_POSITION++;
 }
 

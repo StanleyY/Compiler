@@ -1,4 +1,5 @@
-AST = null
+AST = null;
+SYMBOL_TABLE = {};
 
 function run_SA(){
   AST = generateAST(CST);

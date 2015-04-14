@@ -30,6 +30,9 @@ function resetPage(){
   INPUT_LINES = INPUT.val().split("\n");
   TOKENS = [];
   PARSE_POSITION = 0;
+  SYMBOL_TABLE = {};
+  AST = null;
+  CST = null;
   $('#graph-switch').prop('checked', true);
   OUTPUT.empty();  // Clear the output text area.
 }
