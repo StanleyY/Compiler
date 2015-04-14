@@ -6,10 +6,15 @@ function TreeNode(value) {
   this.val = value;
   this.children = [];
   this.addChild = addChild;
+  this.getChild = getChild;
 }
 
 function addChild(new_child){
   this.children.push(new_child);
+}
+
+function getChild(index){
+  return this.children[index];
 }
 
 function printTree(root){
@@ -34,6 +39,12 @@ function printTree(root){
   }
 }
 
+function generateNewChild(parent, child_value){
+  var new_node = new TreeNode(child_value);
+  parent.addChild(new_node);
+  return new_node;
+}
+
 function generateJSONFromTree(root){
   var node_num = 0;
   function generateJSONFromNode(node){
@@ -47,8 +58,8 @@ function generateJSONFromTree(root){
 
     if(node.children.length != 0){
       children = "[";
-      for(var i = 0; node.children[i] != undefined; i++){
-        children += generateJSONFromNode(node.children[i]) + ",";
+      for(var i = 0; node.getChild(i) != undefined; i++){
+        children += generateJSONFromNode(node.getChild(i)) + ",";
       }
       children = children.substring(0, children.length - 1); // remove extra comma
       children += "]";

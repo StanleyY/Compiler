@@ -13,12 +13,6 @@ function processTerminalToken(node){
   PARSE_POSITION++;
 }
 
-function processNonTerminalToken(node, type){
-  var new_node = new TreeNode(type);
-  node.addChild(new_node);
-  return new_node;
-}
-
 function bracesCheck(){
   var index = 0;
   var stack = new Array();
@@ -49,7 +43,7 @@ function parseProgram(){
 }
 
 function parseBlock(node){
-  var block_node = processNonTerminalToken(node, "Block");
+  var block_node = generateNewChild(node, "Block");
   if(TOKENS[PARSE_POSITION].value != "{") raiseFatalError("Expected {, Found " + TOKENS[PARSE_POSITION].value + " instead.");
   processTerminalToken(block_node);
   parseStatementList(block_node);
@@ -58,7 +52,7 @@ function parseBlock(node){
 }
 
 function parseStatementList(node){
-  var stmtList_node = processNonTerminalToken(node, "StmtList");
+  var stmtList_node = generateNewChild(node, "StmtList");
   if(TOKENS[PARSE_POSITION].value == "}") {
     stmtList_node.addChild(new TreeNode("ε"));
     return; // Epsilon Transition
@@ -70,7 +64,7 @@ function parseStatementList(node){
 }
 
 function parseStatement(node){
-  var stmt_node = processNonTerminalToken(node, "Stmt");
+  var stmt_node = generateNewChild(node, "Stmt");
   if(TOKENS[PARSE_POSITION].type == "Type") { //VarDecl
     parseVarDecl(stmt_node);
   }
@@ -91,35 +85,35 @@ function parseStatement(node){
 }
 
 function parseType(node){
-  var type_node = processNonTerminalToken(node, "Type");
+  var type_node = generateNewChild(node, "Type");
   processTerminalToken(type_node);
 }
 
 function parseVarDecl(node){
-  var var_decl_node = processNonTerminalToken(node, "VarDecl");
+  var var_decl_node = generateNewChild(node, "VarDecl");
   parseType(var_decl_node);
   parseID(var_decl_node);
 }
 
 function parseChar(node){
-  var char_node = processNonTerminalToken(node, "Char");
+  var char_node = generateNewChild(node, "Char");
   processTerminalToken(char_node);
 }
 
 function parseSpace(node){
-  var space_node = processNonTerminalToken(node, "Space");
+  var space_node = generateNewChild(node, "Space");
   processTerminalToken(space_node);
 }
 
 function parseID(node){
-  var id_node = processNonTerminalToken(node, "ID");
+  var id_node = generateNewChild(node, "ID");
   if(TOKENS[PARSE_POSITION].type != "Char") raiseFatalError(generateTokenError("Char", TOKENS[PARSE_POSITION]));
   parseChar(id_node);
 }
 
 
 function parseAssignment(node){
-  var assignment_node = processNonTerminalToken(node, "AssignStmt");
+  var assignment_node = generateNewChild(node, "AssignStmt");
   parseID(assignment_node);
   if(TOKENS[PARSE_POSITION].type != "Assignment") raiseFatalError(generateTokenError("Assignment", TOKENS[PARSE_POSITION]));
   processTerminalToken(assignment_node);
@@ -127,21 +121,21 @@ function parseAssignment(node){
 }
 
 function parseWhile(node){
-  var while_node = processNonTerminalToken(node, "WhileStmt");
+  var while_node = generateNewChild(node, "WhileStmt");
   processTerminalToken(while_node);
   parseBooleanExpr(while_node);
   parseBlock(while_node);
 }
 
 function parseIf(node){
-  var if_node = processNonTerminalToken(node, "IfStmt");
+  var if_node = generateNewChild(node, "IfStmt");
   processTerminalToken(if_node);
   parseBooleanExpr(if_node);
   parseBlock(if_node);
 }
 
 function parsePrint(node){
-  var print_node = processNonTerminalToken(node, "PrintStmt");
+  var print_node = generateNewChild(node, "PrintStmt");
   processTerminalToken(print_node);
   if(TOKENS[PARSE_POSITION].value != "(") raiseFatalError(generateTokenError("(", TOKENS[PARSE_POSITION]));
   processTerminalToken(print_node);
@@ -152,7 +146,7 @@ function parsePrint(node){
 }
 
 function parseExpr(node){
-  var expr_node = processNonTerminalToken(node, "Expr");
+  var expr_node = generateNewChild(node, "Expr");
   if(TOKENS[PARSE_POSITION].type == "Digit") parseIntExpr(expr_node);
   else if(TOKENS[PARSE_POSITION].type == "Quote") parseStringExpr(expr_node);
   else if(TOKENS[PARSE_POSITION].type == "BoolVal" || TOKENS[PARSE_POSITION].value == "(") parseBooleanExpr(expr_node);
@@ -161,17 +155,17 @@ function parseExpr(node){
 }
 
 function parseDigit(node){
-  var digit_node = processNonTerminalToken(node, "Digit");
+  var digit_node = generateNewChild(node, "Digit");
   processTerminalToken(digit_node);
 }
 
 function parseIntOp(node){
-  var intop_node = processNonTerminalToken(node, "IntOp");
+  var intop_node = generateNewChild(node, "IntOp");
   processTerminalToken(intop_node);
 }
 
 function parseIntExpr(node){
-  var int_node = processNonTerminalToken(node, "IntExpr");
+  var int_node = generateNewChild(node, "IntExpr");
   if(TOKENS[PARSE_POSITION].type != "Digit") raiseFatalError(generateTokenError("Digit", TOKENS[PARSE_POSITION]));
   parseDigit(int_node);
   if(TOKENS[PARSE_POSITION].type == "IntOp") {
@@ -181,17 +175,17 @@ function parseIntExpr(node){
 }
 
 function parseBooleanVal(node){
-  var boolval_node = processNonTerminalToken(node, "BoolVal");
+  var boolval_node = generateNewChild(node, "BoolVal");
   processTerminalToken(boolval_node);
 }
 
 function parseBoolOp(node){
-  var boolop_node = processNonTerminalToken(node, "BoolOp");
+  var boolop_node = generateNewChild(node, "BoolOp");
   processTerminalToken(boolop_node);
 }
 
 function parseBooleanExpr(node){
-  var boolean_node = processNonTerminalToken(node, "BoolExpr");
+  var boolean_node = generateNewChild(node, "BoolExpr");
   if(TOKENS[PARSE_POSITION].type == "BoolVal") {
     parseBooleanVal(boolean_node);
   }
@@ -213,7 +207,7 @@ function parseBooleanExpr(node){
 }
 
 function parseStringExpr(node){
-  var string_node = processNonTerminalToken(node, "StringExpr");
+  var string_node = generateNewChild(node, "StringExpr");
   // Mismatched quotes should never show up here if the lexer is working properly.
   if(TOKENS[PARSE_POSITION].type != "Quote") raiseFatalError(generateTokenError("Quote", TOKENS[PARSE_POSITION]));
   processTerminalToken(string_node);
@@ -223,7 +217,7 @@ function parseStringExpr(node){
 }
 
 function parseCharList(node){
-  var char_list_node = processNonTerminalToken(node, "CharList");
+  var char_list_node = generateNewChild(node, "CharList");
   if(TOKENS[PARSE_POSITION].type == "Quote") {// Epsilon
     char_list_node.addChild(new TreeNode("ε"));
     return;
