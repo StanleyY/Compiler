@@ -12,8 +12,17 @@ function run_SA(){
 
 function insertSymbol(id_type, id_node){
   console.log(id_node);
-  if(SYMBOL_TABLE[id_node.val + CURRENT_SCOPE] != undefined) raiseFatalError("Redeclared ID at line: " + id_node.line + " position: " + id_node.pos);
+  if(SYMBOL_TABLE[id_node.val + CURRENT_SCOPE] != undefined) raiseFatalError("Redeclared ID:" + id_node.val + " at line: " + id_node.line + " position: " + id_node.pos);
   SYMBOL_TABLE[id_node.val + CURRENT_SCOPE] = {scope: CURRENT_SCOPE, id: id_node.val, type: id_type, line: id_node.line, pos: id_node.pos};
+}
+
+function getSymbol(id_node){
+  var scope = CURRENT_SCOPE;
+  while(scope != -1){
+    if(SYMBOL_TABLE[id_node.val + scope] != undefined) return SYMBOL_TABLE[id_node.val + scope];
+    scope = PREVIOUS_SCOPE[scope];
+  }
+  raiseFatalError("Undeclared Variable: " + id_node.val + " at line: " + id_node.line + " position: " + id_node.pos);
 }
 
 function generateAST(cst){
@@ -70,6 +79,7 @@ function generateVarDeclAST(ast_node, var_decl_node){
 
 function generateAssignAST(ast_node, assign_node){
   ast_node = generateNewChild(ast_node, "Assign");
+  var symbol = getSymbol(getIDAST(assign_node.getChild(0)));
   ast_node.addChild(getIDAST(assign_node.getChild(0)));
   generateExprAST(ast_node, assign_node.getChild(2));
 }
