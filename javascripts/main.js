@@ -85,7 +85,7 @@ function displaySymbolTable(){
       line_cell = row.insertCell(3);
       pos_cell = row.insertCell(4);
       type_cell.innerHTML = SYMBOL_TABLE[key].type;
-      id_cell.innerHTML = key;
+      id_cell.innerHTML = SYMBOL_TABLE[key].id;
       scope_cell.innerHTML = SYMBOL_TABLE[key].scope;
       line_cell.innerHTML = SYMBOL_TABLE[key].line;
       pos_cell.innerHTML = SYMBOL_TABLE[key].pos;
