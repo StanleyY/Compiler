@@ -3,7 +3,6 @@ AST = null
 function run_SA(){
   AST = generateAST(CST);
   writeOutput("AST generated.");
-  printTree(AST);
 }
 
 function generateAST(cst){
@@ -11,16 +10,15 @@ function generateAST(cst){
   if(CST.children[0].val != "Block") raiseFatalError("Horrible things happened");
   var root = new TreeNode("root");
   generateBlockChildren(root, CST.getChild(0));
+  root = root.getChild(0); // Root only exists as a place holder.
   return root;
 }
 
-function generateBlockChildren(ast_node, cst_node){
-  var block_node = generateNewChild(ast_node, "Block");
-  var temp_node;
+function generateBlockChildren(ast_node, block_node){
+  ast_node = generateNewChild(ast_node, "Block");
   // Ignoring the first and last children because they are braces.
   for(var i = 1; i < block_node.children.length - 1; i++){
-    temp_node = generateStmtListChildren(block_node, cst_node.getChild(i));
-    if(temp_node != undefined) block_node.addChild(temp_node);
+    generateStmtListChildren(ast_node, block_node.getChild(i));
   }
 }
 
