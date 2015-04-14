@@ -20,6 +20,7 @@
     <script src="javascripts/parser.js"></script>
     <script src="javascripts/token-utils.js"></script>
     <script src="javascripts/main.js"></script>
+    <script src="javascripts/semantic-analysis.js"></script>
     <script src="javascripts/test-cases.js"></script>
     <script>
       //Run init once the page is done loading.
@@ -59,7 +60,7 @@
       <button onClick="run()" >Run</button>
       </section>
       <div class="onoffswitch">
-        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="graph-switch" checked>
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="graph-switch" onClick="graphSwitch()" checked>
         <label class="onoffswitch-label" for="graph-switch">
           <span class="onoffswitch-inner"></span>
           <span class="onoffswitch-switch"></span>

@@ -21,8 +21,7 @@ function init(){
   $('#inputTextArea').linedtextarea();
   resetPage();
   defaultTestCase();
-  var temp = {"id": "node",  "name": "1",  "data": {},"children": [{"id": "node1",  "name": "2",  "data": {},"children": []}]};
-  generateCSTGraph(temp);
+  generateGraph(new TreeNode("Welcome"));
 }
 
 function resetPage(){
@@ -31,8 +30,8 @@ function resetPage(){
   INPUT_LINES = INPUT.val().split("\n");
   TOKENS = [];
   PARSE_POSITION = 0;
+  $('#graph-switch').prop('checked', true);
   OUTPUT.empty();  // Clear the output text area.
-  $('#infovis').empty();
 }
 
 function run(){
@@ -40,7 +39,8 @@ function run(){
   lexer();
   parser();
   OUTPUT.scrollTop(0);
-  if(CST != null) generateCSTGraph(JSON.parse(generateJSONFromTree(CST)));
+  generateGraph(CST);
+  run_SA();
 }
 
 function writeOutput(message){
@@ -59,9 +59,17 @@ function raiseFatalError(message){
   throw new Error(message);
 }
 
-function generateCSTGraph(input_json){
+function graphSwitch(){
+  if(CST == null) return;
+  // Checked is CST, unchecked is AST
+  if($('#graph-switch').is(':checked')) generateGraph(CST);
+  else generateGraph(AST);
+}
+
+function generateGraph(tree){
+  $('#infovis').empty(); // Reset Graph
   //If your browser doesn't support JSON, I don't think you should be using my compiler.
-  var json = input_json;
+  var json = JSON.parse(generateJSONFromTree(tree));
 
   var st = new $jit.ST({
       injectInto: 'infovis',
