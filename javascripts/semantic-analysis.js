@@ -57,7 +57,7 @@ function generateAssignAST(ast_node, assign_node){
 function generateExprAST(ast_node, expr_node){
   var type = expr_node.getChild(0).val;
   if(type == "IntExpr") generateIntExprAST(ast_node, expr_node.getChild(0));
-  //else if(type == "StringExpr") ;
+  else if(type == "StringExpr") generateStringExprAST(ast_node, expr_node.getChild(0));
   //else if(type == "BooleanExpr") ;
   else ast_node.addChild(getIDAST(expr_node.getChild(0)));
 }
@@ -69,6 +69,19 @@ function generateIntExprAST(ast_node, int_expr_node){
     ast_node.addChild(getDigitAST(int_expr_node.getChild(0)));
     generateExprAST(ast_node, int_expr_node.getChild(2));
   }
+}
+
+function generateStringExprAST(ast_node, string_expr_node){
+  ast_node.addChild(new TreeNode(charListToString(string_expr_node.getChild(1))));
+}
+
+function charListToString(char_list_node){
+  var temp = "\\\"";
+  while(char_list_node.children.length != 1){
+    temp += char_list_node.getChild(0).getChild(0).val;
+    char_list_node = char_list_node.getChild(1);
+  }
+  return temp + "\\\"";
 }
 
 function getTypeAST(node){
