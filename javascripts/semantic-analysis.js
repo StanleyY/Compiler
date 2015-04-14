@@ -58,7 +58,7 @@ function generateExprAST(ast_node, expr_node){
   var type = expr_node.getChild(0).val;
   if(type == "IntExpr") generateIntExprAST(ast_node, expr_node.getChild(0));
   else if(type == "StringExpr") generateStringExprAST(ast_node, expr_node.getChild(0));
-  //else if(type == "BooleanExpr") ;
+  else if(type == "BoolExpr") generateBooleanExprAST(ast_node, expr_node.getChild(0));
   else ast_node.addChild(getIDAST(expr_node.getChild(0)));
 }
 
@@ -73,6 +73,15 @@ function generateIntExprAST(ast_node, int_expr_node){
 
 function generateStringExprAST(ast_node, string_expr_node){
   ast_node.addChild(new TreeNode(charListToString(string_expr_node.getChild(1))));
+}
+
+function generateBooleanExprAST(ast_node, bool_expr_node){
+  if(bool_expr_node.children.length == 1) ast_node.addChild(getBoolValAST(bool_expr_node.getChild(0)));
+  else{
+    ast_node = generateNewChild(ast_node, getBoolOpAST(bool_expr_node.getChild(2)));
+    generateExprAST(ast_node, bool_expr_node.getChild(1));
+    generateExprAST(ast_node, bool_expr_node.getChild(3));
+  }
 }
 
 function charListToString(char_list_node){
@@ -97,5 +106,13 @@ function getDigitAST(node){
 }
 
 function getIntOpAST(node){
+  return node.getChild(0).val;
+}
+
+function getBoolValAST(node){
+  return node.getChild(0);
+}
+
+function getBoolOpAST(node){
   return node.getChild(0).val;
 }
