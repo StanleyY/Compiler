@@ -5,8 +5,10 @@ MAX_SCOPE = -1;
 PREVIOUS_SCOPE = [];
 
 function run_SA(){
+  writeOutput("Beginning Semantic Analysis.");
   AST = generateAST(CST);
   console.log(SYMBOL_TABLE);
+  writeOutput("Finished Semantic Analysis.");
   writeOutput("AST generated.");
 }
 
@@ -14,12 +16,17 @@ function insertSymbol(id_type, id_node){
   console.log(id_node);
   if(SYMBOL_TABLE[id_node.val + CURRENT_SCOPE] != undefined) raiseFatalError("Redeclared ID:" + id_node.val + " at line: " + id_node.line + " position: " + id_node.pos);
   SYMBOL_TABLE[id_node.val + CURRENT_SCOPE] = {scope: CURRENT_SCOPE, id: id_node.val, type: id_type, line: id_node.line, pos: id_node.pos};
+  writeOutput("Created Symbol: " + id_node.val + " of type: " + id_type);
 }
 
 function getSymbol(id_node){
   var scope = CURRENT_SCOPE;
+  writeOutput("Looking for symbol: " + id_node.val);
   while(scope != -1){
-    if(SYMBOL_TABLE[id_node.val + scope] != undefined) return SYMBOL_TABLE[id_node.val + scope];
+    if(SYMBOL_TABLE[id_node.val + scope] != undefined) {
+      writeOutput("Found symbol: " + id_node.val + " in scope: " + scope);
+      return SYMBOL_TABLE[id_node.val + scope];
+    }
     scope = PREVIOUS_SCOPE[scope];
   }
   raiseFatalError("Undeclared Variable: " + id_node.val + " at line: " + id_node.line + " position: " + id_node.pos);
@@ -38,11 +45,13 @@ function generateBlockAST(ast_node, block_node){
   MAX_SCOPE++;
   PREVIOUS_SCOPE[MAX_SCOPE] = CURRENT_SCOPE;
   CURRENT_SCOPE = MAX_SCOPE;
+  writeOutput("Entering Scope: " + CURRENT_SCOPE);
   ast_node = generateNewChild(ast_node, "Block");
   // Ignoring the first and last children because they are braces.
   for(var i = 1; i < block_node.children.length - 1; i++){
     generateStmtListAST(ast_node, block_node.getChild(i));
   }
+  writeOutput("Leaving Scope: " + CURRENT_SCOPE);
   CURRENT_SCOPE = PREVIOUS_SCOPE[CURRENT_SCOPE];
 }
 
