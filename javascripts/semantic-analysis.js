@@ -37,8 +37,11 @@ function generateStmtAST(ast_node, stmt_node){
   if(type == "Block") generateBlockAST(ast_node, stmt_node.getChild(0));
   else if(type == "VarDecl") generateVarDeclAST(ast_node, stmt_node.getChild(0));
   else if(type == "AssignStmt") generateAssignAST(ast_node, stmt_node.getChild(0));
+  else if(type == "PrintStmt") generatePrintStmtAST(ast_node, stmt_node.getChild(0));
+  else if(type == "IfStmt") generateIfStmtAST(ast_node, stmt_node.getChild(0));
+  else if(type == "WhileStmt") generateWhileStmtAST(ast_node, stmt_node.getChild(0));
   else {
-    return;
+    raiseFatalError("CST statement node did not match a production");
   }
 }
 
@@ -54,11 +57,28 @@ function generateAssignAST(ast_node, assign_node){
   generateExprAST(ast_node, assign_node.getChild(2));
 }
 
+function generatePrintStmtAST(ast_node, print_stmt_node){
+  ast_node = generateNewChild(ast_node, "Print");
+  generateExprAST(ast_node, print_stmt_node.getChild(2));
+}
+
+function generateIfStmtAST(ast_node, if_node){
+  ast_node = generateNewChild(ast_node, "If");
+  generateBoolExprAST(ast_node, if_node.getChild(1));
+  generateBlockAST(ast_node, if_node.getChild(2));
+}
+
+function generateWhileStmtAST(ast_node, while_node){
+  ast_node = generateNewChild(ast_node, "While");
+  generateBoolExprAST(ast_node, while_node.getChild(1));
+  generateBlockAST(ast_node, while_node.getChild(2));
+}
+
 function generateExprAST(ast_node, expr_node){
   var type = expr_node.getChild(0).val;
   if(type == "IntExpr") generateIntExprAST(ast_node, expr_node.getChild(0));
   else if(type == "StringExpr") generateStringExprAST(ast_node, expr_node.getChild(0));
-  else if(type == "BoolExpr") generateBooleanExprAST(ast_node, expr_node.getChild(0));
+  else if(type == "BoolExpr") generateBoolExprAST(ast_node, expr_node.getChild(0));
   else ast_node.addChild(getIDAST(expr_node.getChild(0)));
 }
 
@@ -75,7 +95,7 @@ function generateStringExprAST(ast_node, string_expr_node){
   ast_node.addChild(new TreeNode(charListToString(string_expr_node.getChild(1))));
 }
 
-function generateBooleanExprAST(ast_node, bool_expr_node){
+function generateBoolExprAST(ast_node, bool_expr_node){
   if(bool_expr_node.children.length == 1) ast_node.addChild(getBoolValAST(bool_expr_node.getChild(0)));
   else{
     ast_node = generateNewChild(ast_node, getBoolOpAST(bool_expr_node.getChild(2)));
