@@ -38,6 +38,7 @@ function resetPage(){
   CST = null;
   $('#graph-switch').prop('checked', true);
   OUTPUT.empty();  // Clear the output text area.
+  $('#symbol-table')[0].innerHTML = "<table id=\"symbol-table\"><tr><td>Type</td><td>ID</td><td>Scope</td><td>Line</td><td>Pos</td></tr></table>";
 }
 
 function run(){
@@ -47,6 +48,7 @@ function run(){
   OUTPUT.scrollTop(0);
   generateGraph(CST);
   run_SA();
+  displaySymbolTable();
 }
 
 function writeOutput(message){
@@ -70,6 +72,25 @@ function graphSwitch(){
   // Checked is CST, unchecked is AST
   if($('#graph-switch').is(':checked')) generateGraph(CST);
   else generateGraph(AST);
+}
+
+function displaySymbolTable(){
+  var row, type_cell, id_cell, scope_cell, line_cell, pos_cell;
+  for (var key in SYMBOL_TABLE) {
+    if (SYMBOL_TABLE.hasOwnProperty(key)) {
+      row = $('#symbol-table')[0].insertRow();
+      type_cell = row.insertCell(0);
+      id_cell = row.insertCell(1);
+      scope_cell = row.insertCell(2);
+      line_cell = row.insertCell(3);
+      pos_cell = row.insertCell(4);
+      type_cell.innerHTML = SYMBOL_TABLE[key].type;
+      id_cell.innerHTML = key;
+      scope_cell.innerHTML = SYMBOL_TABLE[key].scope;
+      line_cell.innerHTML = SYMBOL_TABLE[key].line;
+      pos_cell.innerHTML = SYMBOL_TABLE[key].pos;
+    }
+  }
 }
 
 function generateGraph(tree){

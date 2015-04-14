@@ -13,7 +13,7 @@ function run_SA(){
 function insertSymbol(id_type, id_node){
   console.log(id_node);
   if(SYMBOL_TABLE[id_node.val] != undefined) raiseFatalError("Redeclared ID at line: " + id_node.line + " position: " + id_node.pos);
-  SYMBOL_TABLE[id_node.val] = {scope: CURRENT_SCOPE, line: id_node.line, type: id_type};
+  SYMBOL_TABLE[id_node.val] = {scope: CURRENT_SCOPE,  type: id_type, line: id_node.line, pos: id_node.pos};
 }
 
 function generateAST(cst){

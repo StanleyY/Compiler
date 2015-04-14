@@ -500,3 +500,8 @@ Switch
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
   right: 0px; 
 }
+
+#symbol-table {
+  margin:auto;
+  position:right;
+}
