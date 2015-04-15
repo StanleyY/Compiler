@@ -157,9 +157,16 @@ function generateStringExprAST(ast_node, string_expr_node){
 function generateBoolExprAST(ast_node, bool_expr_node){
   if(bool_expr_node.children.length == 1) ast_node.addChild(getBoolValAST(bool_expr_node.getChild(0)));
   else{
+    var left_expr = bool_expr_node.getChild(1);
+    var right_expr = bool_expr_node.getChild(3);
+    var left_expr_type = getExprType(left_expr);
+    var right_expr_type = getExprType(right_expr);
+
+    if(left_expr_type != right_expr_type) raiseFatalError("Cannot compare " + left_expr_type + " with " + right_expr_type);
+
     ast_node = generateNewChild(ast_node, getBoolOpAST(bool_expr_node.getChild(2)));
-    generateExprAST(ast_node, bool_expr_node.getChild(1));
-    generateExprAST(ast_node, bool_expr_node.getChild(3));
+    generateExprAST(ast_node, left_expr);
+    generateExprAST(ast_node, right_expr);
   }
 }
 
