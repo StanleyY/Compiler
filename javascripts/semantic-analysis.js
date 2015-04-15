@@ -32,27 +32,14 @@ function getSymbol(id_node){
   raiseFatalError("Undeclared Variable: " + id_node.val + " at line: " + id_node.line + " position: " + id_node.pos);
 }
 
-function typeCheck(requested_type, expr_node){
+function getExprType(expr_node){
   if(expr_node.val == "Expr") expr_node = expr_node.getChild(0);
-  if(expr_node.val == "ID") {
-    var id_type = getSymbol(getIDAST(expr_node)).type;
-    if(requested_type == id_type) return true;
-    return false;
-  }
-  else if(requested_type == "string") {
-    if(expr_node.val == "StringExpr") return true;
-    else return false;
-  }
-  if(requested_type == "int") {
-    if(expr_node.val == "IntExpr") return true;
-    else return false;
-  }
-  /*
-  if(symbol.type == "boolean") {
-    if(expr_node.getChild(0).val == "BoolExpr") return true;
-    else return false;
-  }*/
-  return false;
+
+  if(expr_node.val == "ID") return getSymbol(getIDAST(expr_node)).type;
+  else if(expr_node.val == "StringExpr") return "string";
+  else if(expr_node.val == "IntExpr") return "int";
+  else if(expr_node.val == "BoolExpr") return "boolean";
+  else raiseFatalError("getExprType did not match the expression");
 }
 
 function generateAST(cst){
@@ -111,14 +98,14 @@ function generateVarDeclAST(ast_node, var_decl_node){
 
 function generateAssignAST(ast_node, assign_node){
   ast_node = generateNewChild(ast_node, "Assign");
+
   var symbol = getSymbol(getIDAST(assign_node.getChild(0)));
   var expr_node = assign_node.getChild(2);
-  if(typeCheck(symbol.type, expr_node)) writeOutput(symbol.id + " was assigned the proper type.");
-  else {
-    if (expr_node.getChild(0).val  == "ID") raiseFatalError(symbol.type + " cannot be assigned " + getSymbol(getIDAST(expr_node.getChild(0))).type);
-    else raiseFatalError(symbol.type + " cannot be assigned " + expr_node.getChild(0).val);
-  }
+  var expr_type = getExprType(expr_node);
 
+  if(symbol.type != expr_type) raiseFatalError(symbol.type + " cannot be assigned " + expr_type);
+
+  writeOutput(symbol.id + " was assigned the proper type.");
   ast_node.addChild(getIDAST(assign_node.getChild(0)));
   generateExprAST(ast_node, assign_node.getChild(2));
 }
@@ -153,10 +140,10 @@ function generateIntExprAST(ast_node, int_expr_node){
   else{
     var int_op = getIntOpAST(int_expr_node.getChild(1));
     var expr_node = int_expr_node.getChild(2);
-    if(!typeCheck("int", expr_node)) {
-      if (expr_node.getChild(0).val  == "ID") raiseFatalError(int_op + " cannot be used on " + getSymbol(getIDAST(expr_node.getChild(0))).type);
-      else raiseFatalError(int_op + " cannot be used on " + expr_node.getChild(0).val);
-    }
+    var expr_type = getExprType(expr_node);
+
+    if("int" != expr_type) raiseFatalError(int_op + " cannot be used on " + expr_type);
+
     ast_node = generateNewChild(ast_node, int_op);
     ast_node.addChild(getDigitAST(int_expr_node.getChild(0)));
     generateExprAST(ast_node, expr_node);
