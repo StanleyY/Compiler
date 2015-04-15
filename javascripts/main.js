@@ -56,12 +56,12 @@ function writeOutput(message){
 }
 
 function raiseWarning(message){
-  message = "Warning: " + message;
+  message = "\nWARNING: " + message + "\n";
   writeOutput(message);
 }
 
 function raiseFatalError(message){
-  message = "Fatal Error: " + message;
+  message = "\nFATAL ERROR: " + message;
   writeOutput(message);
   OUTPUT.scrollTop(OUTPUT[0].scrollHeight); // Scroll to the bottom.
   throw new Error(message);
@@ -89,6 +89,7 @@ function displaySymbolTable(){
       scope_cell.innerHTML = SYMBOL_TABLE[key].scope;
       line_cell.innerHTML = SYMBOL_TABLE[key].line;
       pos_cell.innerHTML = SYMBOL_TABLE[key].pos;
+      if(!SYMBOL_TABLE[key].used) raiseWarning(SYMBOL_TABLE[key].id + " is unused.");
     }
   }
 }

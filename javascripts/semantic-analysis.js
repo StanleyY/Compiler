@@ -15,7 +15,13 @@ function run_SA(){
 function insertSymbol(id_type, id_node){
   console.log(id_node);
   if(SYMBOL_TABLE[id_node.val + CURRENT_SCOPE] != undefined) raiseFatalError("Redeclared ID:" + id_node.val + " at line: " + id_node.line + " position: " + id_node.pos);
-  SYMBOL_TABLE[id_node.val + CURRENT_SCOPE] = {scope: CURRENT_SCOPE, id: id_node.val, type: id_type, line: id_node.line, pos: id_node.pos};
+  SYMBOL_TABLE[id_node.val + CURRENT_SCOPE] = {scope: CURRENT_SCOPE,
+                                               id: id_node.val,
+                                               type: id_type,
+                                               line: id_node.line,
+                                               pos: id_node.pos,
+                                               initialized: false,
+                                               used: false};
   writeOutput("Created Symbol: " + id_node.val + " of type: " + id_type);
 }
 
@@ -104,6 +110,8 @@ function generateAssignAST(ast_node, assign_node){
 
   if(symbol.type != expr_type) raiseFatalError(symbol.type + " cannot be assigned " + expr_type);
 
+  symbol.initialized = true;
+  symbol.used = true;
   writeOutput(symbol.id + " was assigned the proper type.");
   ast_node.addChild(getIDAST(assign_node.getChild(0)));
   generateExprAST(ast_node, assign_node.getChild(2));
@@ -132,7 +140,9 @@ function generateExprAST(ast_node, expr_node){
   else if(type == "StringExpr") generateStringExprAST(ast_node, expr_node.getChild(0));
   else if(type == "BoolExpr") generateBoolExprAST(ast_node, expr_node.getChild(0));
   else {
-    getSymbol(getIDAST(expr_node.getChild(0)));
+    var symbol = getSymbol(getIDAST(expr_node.getChild(0)));
+    symbol.used = true;
+    if(!symbol.initialized) raiseWarning(symbol.id + " was not initialized.");
     ast_node.addChild(getIDAST(expr_node.getChild(0)));
   }
 }
