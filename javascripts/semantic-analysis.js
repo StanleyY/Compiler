@@ -21,7 +21,6 @@ function insertSymbol(id_type, id_node){
 
 function getSymbol(id_node){
   var scope = CURRENT_SCOPE;
-  //writeOutput("Looking for symbol: " + id_node.val);
   while(scope != -1){
     if(SYMBOL_TABLE[id_node.val + scope] != undefined) {
       writeOutput("Found symbol: " + id_node.val + " in scope: " + scope);
@@ -132,7 +131,10 @@ function generateExprAST(ast_node, expr_node){
   if(type == "IntExpr") generateIntExprAST(ast_node, expr_node.getChild(0));
   else if(type == "StringExpr") generateStringExprAST(ast_node, expr_node.getChild(0));
   else if(type == "BoolExpr") generateBoolExprAST(ast_node, expr_node.getChild(0));
-  else ast_node.addChild(getIDAST(expr_node.getChild(0)));
+  else {
+    getSymbol(getIDAST(expr_node.getChild(0)));
+    ast_node.addChild(getIDAST(expr_node.getChild(0)));
+  }
 }
 
 function generateIntExprAST(ast_node, int_expr_node){
