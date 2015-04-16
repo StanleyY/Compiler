@@ -10,7 +10,9 @@ TEST_CASE_3 = "{{{{{{{{{\n{{{\n{{\n}}\n}}}\n}}}}}}}}} $";
 
 TEST_CASE_4 = "{\nint f int if=1\n}$";
 
-TEST_CASES = [TEST_CASE_0, TEST_CASE_1, TEST_CASE_2, TEST_CASE_3, TEST_CASE_4];
+TEST_CASE_5 = "{\n  int x\n  {\n    string x\n    {\n      x = \"test\"\n    }\n  }\n  {\n    boolean x\n    x = true\n  }\n  x = 1\n}$"
+
+TEST_CASES = [TEST_CASE_0, TEST_CASE_1, TEST_CASE_2, TEST_CASE_3, TEST_CASE_4, TEST_CASE_5];
 
 function changeTestCase(){
   INPUT.val(TEST_CASES[$('#testCaseSelection').val()]);
