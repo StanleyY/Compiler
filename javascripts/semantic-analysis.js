@@ -108,7 +108,7 @@ function generateAssignAST(ast_node, assign_node){
   var expr_type = getExprType(expr_node);
 
   if(symbol.type != expr_type) raiseFatalError(symbol.type + " cannot be assigned " + expr_type);
-  writeOutput(symbol.type + " " + symbol.id + " was assigned the proper type.");
+  writeOutput("{0} {1} of scope {2} was assigned properly.".format(symbol.type, symbol.id, symbol.scope));
 
   symbol.initialized = true;
   symbol.used = true;
@@ -140,7 +140,7 @@ function generateExprAST(ast_node, expr_node){
   else if(type == "BoolExpr") generateBoolExprAST(ast_node, expr_node.getChild(0));
   else {
     var symbol = getSymbol(getIDAST(expr_node.getChild(0)));
-    writeOutput(symbol.id + " exists in the symbol table.");
+    writeOutput("Referencing {0} {1} of scope {2}.".format(symbol.type, symbol.id, symbol.scope));
 
     symbol.used = true;
     if(!symbol.initialized) raiseWarning(symbol.id + " was not initialized.");
