@@ -41,7 +41,6 @@ ol, ul {
 
 table {
   border-collapse: collapse;
-  border-spacing: 0;
 }
 
 /*******************************************************************************
@@ -241,13 +240,13 @@ table {
 
 th {
   font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  padding: 10px;
+  padding: 5px;
   background: #373737;
   color: #fff;
  }
 
 td {
-  padding: 10px;
+  padding: 5px;
   border: 1px solid #373737;
  }
 
@@ -262,11 +261,12 @@ Full-Width Styles
 
 .outer {
   width: 100%;
+  min-width: 1000px;
 }
 
 .inner {
   position: relative;
-  max-width: 1000px;
+  max-width: 1100px;
   padding-top: 20px;
   padding-bottom: 20px;
   margin: 0 auto;
@@ -385,69 +385,26 @@ Full-Width Styles
   background: #212121;
 }
 
-
-
-/*******************************************************************************
-Small Device Styles
-*******************************************************************************/
-
-@media screen and (max-width: 480px) {
-  body {
-    font-size:14px;
-  }
-
-  #downloads {
-    display: none;
-  }
-
-  .inner {
-    min-width: 320px;
-    max-width: 480px;
-  }
-
-  #project_title {
-  font-size: 32px;
-  }
-
-  h1 {
-    font-size: 28px;
-  }
-
-  h2 {
-    font-size: 24px;
-  }
-
-  h3 {
-    font-size: 21px;
-  }
-
-  h4 {
-    font-size: 18px;
-  }
-
-  h5 {
-    font-size: 14px;
-  }
-
-  h6 {
-    font-size: 12px;
-  }
-
-  code, pre {
-    min-width: 320px;
-    max-width: 480px;
-    font-size: 11px;
-  }
-
+#semantic-output{
+  width: 1000px;
+  height: 350px;
+  margin: auto;
 }
+
+/******
+Graph CSS
+****/
 
 #infovis {
   background-color: black;
-  position:relative;
+  float:left;
   width:700px;
   height:300px;
-  margin:auto;
   overflow:hidden;
+}
+
+#symbol-table {
+  float:right;
 }
 
 /****
@@ -455,6 +412,7 @@ Switch
 *****/
 .onoffswitch {
   margin:auto;
+  padding-right: 300px;
   position: relative; width: 90px;
   -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
 }
@@ -490,7 +448,7 @@ Switch
   display: block; width: 18px; margin: 6px;
   background: #FFFFFF;
   border: 2px solid #999999; border-radius: 20px;
-  position: absolute; top: 0; bottom: 0; right: 56px;
+  position: absolute; top: 0; bottom: 0; right: 356px;
   -moz-transition: all 0.3s ease-in 0s; -webkit-transition: all 0.3s ease-in 0s;
   -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s; 
 }
@@ -498,10 +456,5 @@ Switch
   margin-left: 0;
 }
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
-  right: 0px; 
-}
-
-#symbol-table {
-  margin:auto;
-  position:right;
+  right: 300px;
 }
