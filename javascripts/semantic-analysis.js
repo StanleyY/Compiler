@@ -29,7 +29,6 @@ function getSymbol(id_node){
   var scope = CURRENT_SCOPE;
   while(scope != -1){
     if(SYMBOL_TABLE[id_node.val + scope] != undefined) {
-      writeOutput("Found symbol: " + id_node.val + " in scope: " + scope);
       return SYMBOL_TABLE[id_node.val + scope];
     }
     scope = PREVIOUS_SCOPE[scope];
@@ -109,10 +108,10 @@ function generateAssignAST(ast_node, assign_node){
   var expr_type = getExprType(expr_node);
 
   if(symbol.type != expr_type) raiseFatalError(symbol.type + " cannot be assigned " + expr_type);
+  writeOutput(symbol.type + " " + symbol.id + " was assigned the proper type.");
 
   symbol.initialized = true;
   symbol.used = true;
-  writeOutput(symbol.id + " was assigned the proper type.");
   ast_node.addChild(getIDAST(assign_node.getChild(0)));
   generateExprAST(ast_node, assign_node.getChild(2));
 }
@@ -141,6 +140,8 @@ function generateExprAST(ast_node, expr_node){
   else if(type == "BoolExpr") generateBoolExprAST(ast_node, expr_node.getChild(0));
   else {
     var symbol = getSymbol(getIDAST(expr_node.getChild(0)));
+    writeOutput(symbol.id + " exists in the symbol table.");
+
     symbol.used = true;
     if(!symbol.initialized) raiseWarning(symbol.id + " was not initialized.");
     ast_node.addChild(getIDAST(expr_node.getChild(0)));
@@ -155,6 +156,7 @@ function generateIntExprAST(ast_node, int_expr_node){
     var expr_type = getExprType(expr_node);
 
     if("int" != expr_type) raiseFatalError(int_op + " cannot be used on " + expr_type);
+    writeOutput("IntExpr uses proper types.");
 
     ast_node = generateNewChild(ast_node, int_op);
     ast_node.addChild(getDigitAST(int_expr_node.getChild(0)));
@@ -175,6 +177,7 @@ function generateBoolExprAST(ast_node, bool_expr_node){
     var right_expr_type = getExprType(right_expr);
 
     if(left_expr_type != right_expr_type) raiseFatalError("Cannot compare " + left_expr_type + " with " + right_expr_type);
+    writeOutput("BoolExpr uses comparable types.");
 
     ast_node = generateNewChild(ast_node, getBoolOpAST(bool_expr_node.getChild(2)));
     generateExprAST(ast_node, left_expr);

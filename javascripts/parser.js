@@ -4,7 +4,7 @@ function parser(){
   writeOutput("Beginning Parser.");
   bracesCheck();
   parseProgram();
-  writeOutput("Parser completed without errors.");
+  writeOutput("Parser completed without errors.\n");
 }
 
 function processTerminalToken(node){
