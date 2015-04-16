@@ -387,7 +387,7 @@ Full-Width Styles
 
 #semantic-output{
   width: 1000px;
-  height: 350px;
+  min-height: 350px;
   margin: auto;
 }
 
@@ -404,7 +404,8 @@ Graph CSS
 }
 
 #symbol-table {
-  float:right;
+  margin-left: auto;
+  margin-right: 0px;
 }
 
 /****
