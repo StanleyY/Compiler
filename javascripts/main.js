@@ -96,7 +96,9 @@ function displaySymbolTable(){
       scope_cell.innerHTML = SYMBOL_TABLE[key].scope;
       line_cell.innerHTML = SYMBOL_TABLE[key].line;
       pos_cell.innerHTML = SYMBOL_TABLE[key].pos;
-      if(!SYMBOL_TABLE[key].used) raiseWarning(SYMBOL_TABLE[key].id + " is unused.");
+      if(!SYMBOL_TABLE[key].used) raiseWarning("{0} {1} on line {2} is unused.".format(SYMBOL_TABLE[key].type,
+                                                                                       SYMBOL_TABLE[key].id,
+                                                                                       SYMBOL_TABLE[key].line));
     }
   }
 }
