@@ -68,10 +68,17 @@ function raiseFatalError(message){
 }
 
 function graphSwitch(){
-  if(CST == null) return;
   // Checked is CST, unchecked is AST
   if($('#graph-switch').is(':checked')) generateGraph(CST);
-  else generateGraph(AST);
+  else {
+    if(AST == null) {
+      var errorNode = new TreeNode("Semantic");
+      errorNode.addChild(new TreeNode("Error"));
+      generateGraph(errorNode);
+    }
+    else generateGraph(AST);
+  }
+
 }
 
 function displaySymbolTable(){
@@ -105,7 +112,7 @@ function generateGraph(tree){
       duration: 500,
       transition: $jit.Trans.Quart.easeInOut,
       constrained: false,
-      levelsToShow: 200,
+      levelsToShow: 1000,
       levelDistance: 10,
       Navigation: {
         enable:true,
