@@ -458,3 +458,31 @@ Switch
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
   right: 300px;
 }
+
+#runButton {
+  -moz-box-shadow:inset 0px 1px 3px 0px #ffffff;
+  box-shadow:inset 0px 1px 3px 0px #ffffff;
+  background-color:#cccccc;
+  -moz-border-radius:5px;
+  border-radius:5px;
+  border:1px solid #dcdcdc;
+  display:inline-block;
+  cursor:pointer;
+  color:#666666;
+  font-family:arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:11px 23px;
+  position: relative;
+  left: 120px;
+  top: 100px;
+  text-decoration:none;
+  text-shadow:0px -1px 0px #ffffff;
+}
+#runButton:hover {
+  background-color:#e9e9e9;
+}
+#runButton:active {
+  position:relative;
+  top:100px;
+}
