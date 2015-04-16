@@ -56,7 +56,7 @@ function writeOutput(message){
 }
 
 function raiseWarning(message){
-  message = "\nWARNING: " + message + "\n";
+  message = "WARNING: " + message + "\n";
   writeOutput(message);
 }
 

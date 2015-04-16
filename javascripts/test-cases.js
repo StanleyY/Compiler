@@ -12,7 +12,9 @@ TEST_CASE_4 = "{\nint f int if=1\n}$";
 
 TEST_CASE_5 = "{\n  int x\n  {\n    string x\n    {\n      x = \"test\"\n    }\n  }\n  {\n    boolean x\n    x = true\n  }\n  x = 1\n}$"
 
-TEST_CASES = [TEST_CASE_0, TEST_CASE_1, TEST_CASE_2, TEST_CASE_3, TEST_CASE_4, TEST_CASE_5];
+TEST_CASE_6 = "{\nint u\nboolean b\n\nstring s\nprint(s)\n\nint x\nint y\nx = 1\nx = y\ny = 2\n}";
+
+TEST_CASES = [TEST_CASE_0, TEST_CASE_1, TEST_CASE_2, TEST_CASE_3, TEST_CASE_4, TEST_CASE_5, TEST_CASE_6];
 
 function changeTestCase(){
   INPUT.val(TEST_CASES[$('#testCaseSelection').val()]);
