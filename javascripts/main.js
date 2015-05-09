@@ -1,6 +1,7 @@
 console.log("Main JS file loaded");
 
 //Globals
+CODE_OUTPUT = null;
 OUTPUT = null;
 INPUT = null;
 INPUT_LINES = null;
@@ -27,6 +28,7 @@ function init(){
 function resetPage(){
   OUTPUT = $('#outputTextArea');
   INPUT = $('#inputTextArea');
+  CODE_OUTPUT = $('#codeGenerationOutput');
   INPUT_LINES = INPUT.val().split("\n");
   TOKENS = [];
   PARSE_POSITION = 0;
@@ -36,8 +38,10 @@ function resetPage(){
   PREVIOUS_SCOPE = [];
   AST = null;
   CST = null;
+  resetCodeGen();
   $('#graph-switch').prop('checked', true);
   OUTPUT.empty();  // Clear the output text area.
+  CODE_OUTPUT.empty();
   $('#symbol-table')[0].innerHTML = "<table id=\"symbol-table\"><tr><td>Type</td><td>ID</td><td>Scope</td><td>Line</td><td>Pos</td></tr></table>";
 }
 
@@ -49,6 +53,7 @@ function run(){
   generateGraph(CST);
   run_SA();
   displaySymbolTable();
+  runCodeGen();
 }
 
 function writeOutput(message){
