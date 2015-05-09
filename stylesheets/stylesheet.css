@@ -391,6 +391,18 @@ Full-Width Styles
   margin: auto;
 }
 
+#codeGenerationTitle{
+  float:right;
+}
+
+#codeGenerationOutput{
+  margin-left: 67.7%;
+  margin-right: 0px;
+  resize: none;
+  height: 150px;
+  width: 350px;
+}
+
 /******
 Graph CSS
 ****/

@@ -51,16 +51,21 @@
           <div style="clear: both;"></div>
         </div>
         <br>
-        <select id="testCaseSelection" style="margin-left: 50px;" onchange="changeTestCase()">
-          <option value="0">Test Case #0 - General Tests</option>
-          <option value="1">Test Case #1 - Variable Assignments</option>
-          <option value="2">Test Case #2 - If While Print</option>
-          <option value="3">Test Case #3 - Braces</option>
-          <option value="4">Test Case #4 - Case for Line Ending Chars</option>
-          <option value="5">Test Case #5 - Scopes</option>
-          <option value="6">Test Case #6 - Unused and Uninitiated</option>
-        </select>
+        <section>
+          <select id="testCaseSelection" style="margin-left: 50px;" onchange="changeTestCase()">
+            <option value="0">Test Case #0 - General Tests</option>
+            <option value="1">Test Case #1 - Variable Assignments</option>
+            <option value="2">Test Case #2 - If While Print</option>
+            <option value="3">Test Case #3 - Braces</option>
+            <option value="4">Test Case #4 - Case for Line Ending Chars</option>
+            <option value="5">Test Case #5 - Scopes</option>
+            <option value="6">Test Case #6 - Unused and Uninitiated</option>
+          </select>
+          <h1 id="codeGenerationTitle">Code Output</h1>
+          <textarea id="codeGenerationOutput" readonly></textarea>
+        </section>
       </section>
+      <br>
       <section id="semantic-output">
         <div class="onoffswitch">
           <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="graph-switch" onClick="graphSwitch()" checked>
