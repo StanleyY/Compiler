@@ -74,6 +74,6 @@ function backpatch(){
 function fixTemp(temp, address){
   if(address.length == 1) address = "0" + address;
   console.log(OUTPUT_STRING);
-  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp(temp, 'g'), address);
+  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp(temp, 'g'), address + "00");
   console.log(OUTPUT_STRING);
 }
