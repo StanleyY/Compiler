@@ -4,9 +4,11 @@ OUTPUT_STRING = "";
 JUMP_TABLE = [];
 VARIABLE_TABLE = {};
 TEMP_NUM = 0;
-HEAP_BEGINNING = 256;
+HEAP_BEGINNING = 255;
+ADDITION_TEMP = "";
 
 function resetCodeGen(){
+  ADDITION_TEMP = "";
   OUTPUT_STRING = "";
   JUMP_TABLE = [];
   VARIABLE_TABLE = {};
@@ -84,25 +86,29 @@ function writeIntAssignment(ast_node){
 }
 
 function writeAddition(ast_node){
-  var temp = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
+  if(ADDITION_TEMP.length == 0) {
+    // Only reserves heap space if addition is used.
+    ADDITION_TEMP = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
+    HEAP_BEGINNING = HEAP_BEGINNING - 1;
+  }
   while(ast_node.getChild(1).val == "+"){
     ast_node = ast_node.getChild(1);
     writeToOutputString("A90" + ast_node.getChild(0).val);
-    writeToOutputString("6D" + temp);
-    writeToOutputString("8D" + temp);
+    writeToOutputString("6D" + ADDITION_TEMP);
+    writeToOutputString("8D" + ADDITION_TEMP);
   }
   writeToOutputString("A90" + ast_node.getChild(0).val);
-  writeToOutputString("6D" + temp);
-  writeToOutputString("8D" + temp);
+  writeToOutputString("6D" + ADDITION_TEMP);
+  writeToOutputString("8D" + ADDITION_TEMP);
   if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
     //The right child is an ID.
     writeToOutputString("AD" + VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE].temp);
-    writeToOutputString("6D" + temp);
+    writeToOutputString("6D" + ADDITION_TEMP);
   }
   else{
     //The right child is a digit.
     writeToOutputString("A90" + ast_node.getChild(1).val);
-    writeToOutputString("6D" + temp);
+    writeToOutputString("6D" + ADDITION_TEMP);
   }
 }
 
