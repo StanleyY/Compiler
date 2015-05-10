@@ -64,7 +64,11 @@ function writeVariable(ast_node){
   var temp_id = "T" + TEMP_NUM + "XX";
   VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE] = temp_id;
   console.log("Added Temp: " + temp_id);
-  writeToOutputString("A9008D" + temp_id);
+  writeOutput("Added Variable: " + ast_node.getChild(1).val + " of scope " + CURRENT_SCOPE + ", temp ID: " + temp_id);
+  if(ast_node.getChild(1).val == "int") {
+    //We initialize int to 0
+    writeToOutputString("A9008D" + temp_id);
+  }
   TEMP_NUM++;
 }
 
@@ -140,9 +144,9 @@ function backpatch(){
 
 function fixTemp(temp, address){
   if(address.length == 1) address = "0" + address;
-  console.log(OUTPUT_STRING);
-  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp(temp, 'g'), address + "00");
-  console.log(OUTPUT_STRING);
+  address = address + "00";
+  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp(temp, 'g'), address);
+  writeOutput("Swapped temp ID: {0} with address: {1}".format(temp, address));
 }
 
 function fillOutput(){
