@@ -35,6 +35,26 @@ function raiseImageSizeError(){
   throw new Error("Max Image Size Exceeded");
 }
 
+function lookupSymbolType(id){
+  var scope = CURRENT_SCOPE;
+  while(scope != -1){
+    if(SYMBOL_TABLE[id + scope] != undefined) {
+      return SYMBOL_TABLE[id + scope].type;
+    }
+    scope = PREVIOUS_SCOPE[scope];
+  }
+}
+
+function lookupVariableTemp(id){
+  var scope = CURRENT_SCOPE;
+  while(scope != -1){
+    if(VARIABLE_TABLE[id + scope] != undefined) {
+      return VARIABLE_TABLE[id + scope];
+    }
+    scope = PREVIOUS_SCOPE[scope];
+  }
+}
+
 function runCodeGen(){
   writeOutput("\nBeginning Code Generation");
   CURRENT_SCOPE = -1;
@@ -76,7 +96,7 @@ function writeVariable(ast_node){
 }
 
 function writeAssignment(ast_node){
-  var assign_type = SYMBOL_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].type;
+  var assign_type = lookupSymbolType(ast_node.getChild(0).val);
   if(assign_type == "int") writeIntAssignment(ast_node);
   else if(assign_type == "string") writeStringAssignment(ast_node);
   else raiseFatalError("Horrible Code Gen Problem");
@@ -85,16 +105,16 @@ function writeAssignment(ast_node){
 function writeIntAssignment(ast_node){
   if(ast_node.getChild(1).val == "+"){
     writeAddition(ast_node.getChild(1));
-    writeToOutputString("8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE]);
+    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   }
   else if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
     // Setting to another ID's value
-    writeToOutputString("AD" + VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE]);
-    writeToOutputString("8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE]);
+    writeToOutputString("AD" + lookupVariableTemp(ast_node.getChild(1).val));
+    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   }
   else{
     // Assigning a digit
-    writeToOutputString("A90" + ast_node.getChild(1).val + "8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE]);
+    writeToOutputString("A90" + ast_node.getChild(1).val + "8D" + lookupVariableTemp(ast_node.getChild(0).val));
   }
 }
 
@@ -111,7 +131,7 @@ function writeAddition(ast_node){
   }
   if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
     //The right child is an ID.
-    writeToOutputString("AD" + VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE]);
+    writeToOutputString("AD" + lookupVariableTemp(ast_node.getChild(1).val));
     writeToOutputString("8D" + ADDITION_TEMP);
   }
   else{
@@ -142,14 +162,14 @@ function writeStringAssignment(ast_node){
   HEAP_STRING = heap + HEAP_STRING;
   HEAP_BEGINNING = HEAP_BEGINNING - (heap.length / 2);
   writeToOutputString("A9" + (HEAP_BEGINNING + 1).toString(16).toUpperCase());
-  writeToOutputString("8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE]);
+  writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
 }
 
 function writePrint(ast_node){
   var child = ast_node.getChild(0).val;
   if(child.match(/[a-z]/g) != null){
-    var var_type = SYMBOL_TABLE[child + CURRENT_SCOPE].type;
-    writeToOutputString("AC" + VARIABLE_TABLE[child + CURRENT_SCOPE]);
+    var var_type = lookupSymbolType(child);
+    writeToOutputString("AC" + lookupVariableTemp(child));
     if(var_type == "string"){
       writeToOutputString("A202FF");
     }
@@ -158,7 +178,7 @@ function writePrint(ast_node){
     }
   }
   else{
-
+    // TODO: Write code for direct prints
   }
 }
 
