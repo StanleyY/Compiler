@@ -76,12 +76,18 @@ function writeAssignment(ast_node){
 }
 
 function writeIntAssignment(ast_node){
-  if(ast_node.getChild(1).val != "+"){
-    writeToOutputString("A90" + ast_node.getChild(1).val + "8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].temp);
-  }
-  else{
+  if(ast_node.getChild(1).val == "+"){
     writeAddition(ast_node.getChild(1));
     writeToOutputString("8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].temp);
+  }
+  else if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
+    // Setting to another ID's value
+    writeToOutputString("AD" + VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE].temp);
+    writeToOutputString("8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].temp);
+  }
+  else{
+    // Assigning a digit
+    writeToOutputString("A90" + ast_node.getChild(1).val + "8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].temp);
   }
 }
 
@@ -91,6 +97,22 @@ function writeAddition(ast_node){
     ADDITION_TEMP = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
     HEAP_BEGINNING = HEAP_BEGINNING - 1;
   }
+  var original = ast_node;
+  while(ast_node.getChild(1).val == "+"){
+    ast_node = ast_node.getChild(1);
+  }
+  if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
+    //The right child is an ID.
+    writeToOutputString("AD" + VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE].temp);
+    writeToOutputString("8D" + ADDITION_TEMP);
+  }
+  else{
+    //The right child is a digit.
+    writeToOutputString("A90" + ast_node.getChild(1).val);
+    writeToOutputString("8D" + ADDITION_TEMP);
+  }
+
+  ast_node = original;
   while(ast_node.getChild(1).val == "+"){
     ast_node = ast_node.getChild(1);
     writeToOutputString("A90" + ast_node.getChild(0).val);
@@ -99,17 +121,6 @@ function writeAddition(ast_node){
   }
   writeToOutputString("A90" + ast_node.getChild(0).val);
   writeToOutputString("6D" + ADDITION_TEMP);
-  writeToOutputString("8D" + ADDITION_TEMP);
-  if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
-    //The right child is an ID.
-    writeToOutputString("AD" + VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE].temp);
-    writeToOutputString("6D" + ADDITION_TEMP);
-  }
-  else{
-    //The right child is a digit.
-    writeToOutputString("A90" + ast_node.getChild(1).val);
-    writeToOutputString("6D" + ADDITION_TEMP);
-  }
 }
 
 function writePrint(ast_node){
