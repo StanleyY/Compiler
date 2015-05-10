@@ -5,11 +5,13 @@ JUMP_TABLE = [];
 VARIABLE_TABLE = {};
 TEMP_NUM = 0;
 HEAP_BEGINNING = 255;
+HEAP_STRING = "";
 ADDITION_TEMP = "";
 
 function resetCodeGen(){
   ADDITION_TEMP = "";
   OUTPUT_STRING = "";
+  HEAP_STRING = "";
   JUMP_TABLE = [];
   VARIABLE_TABLE = {};
   TEMP_NUM = 0;
@@ -41,6 +43,7 @@ function runCodeGen(){
   //OUTPUT_STRING += "00"; Not sure if safety break is needed.
   backpatch();
   fillOutput();
+  OUTPUT_STRING = OUTPUT_STRING + HEAP_STRING;
   // adds a space every two chars to OUTPUT_STRING.
   writeToCodeOutput(OUTPUT_STRING.match(/(\w\w)/g).join(" "));
   writeOutput("\nFinished Code Generation");
@@ -65,7 +68,7 @@ function writeVariable(ast_node){
   VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE] = temp_id;
   console.log("Added Temp: " + temp_id);
   writeOutput("Added Variable: " + ast_node.getChild(1).val + " of scope " + CURRENT_SCOPE + ", temp ID: " + temp_id);
-  if(ast_node.getChild(1).val == "int") {
+  if(ast_node.getChild(0).val == "int") {
     //We initialize int to 0
     writeToOutputString("A9008D" + temp_id);
   }
@@ -75,7 +78,7 @@ function writeVariable(ast_node){
 function writeAssignment(ast_node){
   var assign_type = SYMBOL_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].type;
   if(assign_type == "int") writeIntAssignment(ast_node);
-  //else if(assign_type == "string") writeStringAssignment(ast_node);
+  else if(assign_type == "string") writeStringAssignment(ast_node);
   else raiseFatalError("Horrible Code Gen Problem");
 }
 
@@ -99,6 +102,7 @@ function writeAddition(ast_node){
   if(ADDITION_TEMP.length == 0) {
     // Only reserves heap space if addition is used.
     ADDITION_TEMP = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
+    HEAP_STRING = "00";
     HEAP_BEGINNING = HEAP_BEGINNING - 1;
   }
   var original = ast_node;
@@ -127,8 +131,35 @@ function writeAddition(ast_node){
   writeToOutputString("6D" + ADDITION_TEMP);
 }
 
+function writeStringAssignment(ast_node){
+  var s = ast_node.getChild(1).val;
+  var heap = "";
+  for(var i = 2; i < (s.length - 2); i++){
+    heap = heap + s.charCodeAt(i).toString(16).toUpperCase();
+  }
+  heap = heap + "00";
+  console.log("HEAP STRING IS: " + heap);
+  HEAP_STRING = heap + HEAP_STRING;
+  HEAP_BEGINNING = HEAP_BEGINNING - (heap.length / 2);
+  writeToOutputString("A9" + (HEAP_BEGINNING + 1).toString(16).toUpperCase());
+  writeToOutputString("8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE]);
+}
+
 function writePrint(ast_node){
-  writeToOutputString("AC" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE] + "A201FF");
+  var child = ast_node.getChild(0).val;
+  if(child.match(/[a-z]/g) != null){
+    var var_type = SYMBOL_TABLE[child + CURRENT_SCOPE].type;
+    writeToOutputString("AC" + VARIABLE_TABLE[child + CURRENT_SCOPE]);
+    if(var_type == "string"){
+      writeToOutputString("A202FF");
+    }
+    else{
+      writeToOutputString("A201FF");
+    }
+  }
+  else{
+
+  }
 }
 
 function backpatch(){
