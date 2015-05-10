@@ -11,7 +11,7 @@ function resetCodeGen(){
   JUMP_TABLE = [];
   VARIABLE_TABLE = {};
   TEMP_NUM = 0;
-  HEAP_BEGINNING = 256;
+  HEAP_BEGINNING = 255;
 }
 
 function writeToCodeOutput(message){
@@ -20,7 +20,7 @@ function writeToCodeOutput(message){
 
 function writeToOutputString(new_commands){
   OUTPUT_STRING = OUTPUT_STRING + new_commands;
-  if(OUTPUT_STRING.length > 512){
+  if(OUTPUT_STRING.length > HEAP_BEGINNING * 2){
     // Max Image Size is 256 so 512 characters.
     raiseImageSizeError();
   }
@@ -38,6 +38,7 @@ function runCodeGen(){
   readBlock(AST);
   //OUTPUT_STRING += "00"; Not sure if safety break is needed.
   backpatch();
+  fillOutput();
   // adds a space every two chars to OUTPUT_STRING.
   writeToCodeOutput(OUTPUT_STRING.match(/(\w\w)/g).join(" "));
   writeOutput("\nFinished Code Generation");
@@ -77,7 +78,31 @@ function writeIntAssignment(ast_node){
     writeToOutputString("A90" + ast_node.getChild(1).val + "8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].temp);
   }
   else{
-    //Deal with addition
+    writeAddition(ast_node.getChild(1));
+    writeToOutputString("8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].temp);
+  }
+}
+
+function writeAddition(ast_node){
+  var temp = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
+  while(ast_node.getChild(1).val == "+"){
+    ast_node = ast_node.getChild(1);
+    writeToOutputString("A90" + ast_node.getChild(0).val);
+    writeToOutputString("6D" + temp);
+    writeToOutputString("8D" + temp);
+  }
+  writeToOutputString("A90" + ast_node.getChild(0).val);
+  writeToOutputString("6D" + temp);
+  writeToOutputString("8D" + temp);
+  if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
+    //The right child is an ID.
+    writeToOutputString("AD" + VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE].temp);
+    writeToOutputString("6D" + temp);
+  }
+  else{
+    //The right child is a digit.
+    writeToOutputString("A90" + ast_node.getChild(1).val);
+    writeToOutputString("6D" + temp);
   }
 }
 
@@ -101,4 +126,8 @@ function fixTemp(temp, address){
   console.log(OUTPUT_STRING);
   OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp(temp, 'g'), address + "00");
   console.log(OUTPUT_STRING);
+}
+
+function fillOutput(){
+  OUTPUT_STRING = OUTPUT_STRING + Array((HEAP_BEGINNING * 2) - OUTPUT_STRING.length + 3).join("0");
 }
