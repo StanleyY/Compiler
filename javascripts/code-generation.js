@@ -11,6 +11,7 @@ function resetCodeGen(){
   JUMP_TABLE = [];
   VARIABLE_TABLE = {};
   TEMP_NUM = 0;
+  HEAP_BEGINNING = 256;
 }
 
 function writeToCodeOutput(message){
@@ -31,12 +32,14 @@ function raiseImageSizeError(){
 }
 
 function runCodeGen(){
+  writeOutput("\nBeginning Code Generation");
   CURRENT_SCOPE = -1;
   MAX_SCOPE = -1;
   readBlock(AST);
   backpatch();
   // adds a space every two chars to OUTPUT_STRING.
   writeToCodeOutput(OUTPUT_STRING.match(/(\w\w)/g).join(" "));
+  writeOutput("\nFinished Code Generation");
 }
 
 function readBlock(ast_node){
@@ -58,6 +61,22 @@ function writeVariable(ast_node){
   console.log("Added Temp: " + temp_id);
   writeToOutputString("A9008D" + temp_id);
   TEMP_NUM++;
+}
+
+function writeAssignment(ast_node){
+  var assign_type = SYMBOL_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].type;
+  if(assign_type == "int") writeIntAssignment(ast_node);
+  //else if(assign_type == "string") writeStringAssignment(ast_node);
+  else raiseFatalError("Horrible Code Gen Problem");
+}
+
+function writeIntAssignment(ast_node){
+  if(ast_node.getChild(1).val != "+"){
+    writeToOutputString("A90" + ast_node.getChild(1).val + "8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].temp);
+  }
+  else{
+    //Deal with addition
+  }
 }
 
 function backpatch(){
