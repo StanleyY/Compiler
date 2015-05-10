@@ -36,6 +36,7 @@ function runCodeGen(){
   CURRENT_SCOPE = -1;
   MAX_SCOPE = -1;
   readBlock(AST);
+  //OUTPUT_STRING += "00"; Not sure if safety break is needed.
   backpatch();
   // adds a space every two chars to OUTPUT_STRING.
   writeToCodeOutput(OUTPUT_STRING.match(/(\w\w)/g).join(" "));
@@ -50,6 +51,7 @@ function readBlock(ast_node){
     if(child_type == "Block") readBlock(ast_node.children[i]);
     else if(child_type == "VarDecl") writeVariable(ast_node.children[i]);
     else if(child_type == "Assign") writeAssignment(ast_node.children[i]);
+    else if(child_type == "Print") writePrint(ast_node.children[i]);
     else raiseFatalError("Horrible Code Gen Problem");
   }
   CURRENT_SCOPE = PREVIOUS_SCOPE[CURRENT_SCOPE];
@@ -77,6 +79,10 @@ function writeIntAssignment(ast_node){
   else{
     //Deal with addition
   }
+}
+
+function writePrint(ast_node){
+  writeToOutputString("AC" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].temp + "A201FF");
 }
 
 function backpatch(){
