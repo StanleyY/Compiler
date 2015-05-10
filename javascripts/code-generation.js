@@ -62,7 +62,7 @@ function readBlock(ast_node){
 
 function writeVariable(ast_node){
   var temp_id = "T" + TEMP_NUM + "XX";
-  VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE] = {temp: temp_id};
+  VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE] = temp_id;
   console.log("Added Temp: " + temp_id);
   writeToOutputString("A9008D" + temp_id);
   TEMP_NUM++;
@@ -78,16 +78,16 @@ function writeAssignment(ast_node){
 function writeIntAssignment(ast_node){
   if(ast_node.getChild(1).val == "+"){
     writeAddition(ast_node.getChild(1));
-    writeToOutputString("8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].temp);
+    writeToOutputString("8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE]);
   }
   else if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
     // Setting to another ID's value
-    writeToOutputString("AD" + VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE].temp);
-    writeToOutputString("8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].temp);
+    writeToOutputString("AD" + VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE]);
+    writeToOutputString("8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE]);
   }
   else{
     // Assigning a digit
-    writeToOutputString("A90" + ast_node.getChild(1).val + "8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].temp);
+    writeToOutputString("A90" + ast_node.getChild(1).val + "8D" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE]);
   }
 }
 
@@ -103,7 +103,7 @@ function writeAddition(ast_node){
   }
   if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
     //The right child is an ID.
-    writeToOutputString("AD" + VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE].temp);
+    writeToOutputString("AD" + VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE]);
     writeToOutputString("8D" + ADDITION_TEMP);
   }
   else{
@@ -124,7 +124,7 @@ function writeAddition(ast_node){
 }
 
 function writePrint(ast_node){
-  writeToOutputString("AC" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE].temp + "A201FF");
+  writeToOutputString("AC" + VARIABLE_TABLE[ast_node.getChild(0).val + CURRENT_SCOPE] + "A201FF");
 }
 
 function backpatch(){
@@ -132,7 +132,7 @@ function backpatch(){
   for (var key in VARIABLE_TABLE) {
     if (VARIABLE_TABLE.hasOwnProperty(key)) {
       if(current_cell > HEAP_BEGINNING) raiseImageSizeError();
-      fixTemp(VARIABLE_TABLE[key].temp, current_cell.toString(16).toUpperCase());
+      fixTemp(VARIABLE_TABLE[key], current_cell.toString(16).toUpperCase());
       current_cell++;
     }
   }
