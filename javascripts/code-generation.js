@@ -89,8 +89,8 @@ function writeVariable(ast_node){
   VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE] = temp_id;
   console.log("Added Temp: " + temp_id);
   writeOutput("Added Variable: " + ast_node.getChild(1).val + " of scope " + CURRENT_SCOPE + ", temp ID: " + temp_id);
-  if(ast_node.getChild(0).val == "int") {
-    //We initialize int to 0
+  if(ast_node.getChild(0).val != "string") {
+    //We initialize int to 0 and boolean to false.
     writeToOutputString("A9008D" + temp_id);
   }
   TEMP_NUM++;
@@ -100,6 +100,7 @@ function writeAssignment(ast_node){
   var assign_type = lookupSymbolType(ast_node.getChild(0).val);
   if(assign_type == "int") writeIntAssignment(ast_node);
   else if(assign_type == "string") writeStringAssignment(ast_node);
+  else if(assign_type == "boolean") writeBooleanAssignment(ast_node);
   else raiseFatalError("Horrible Code Gen Problem");
 }
 
@@ -164,6 +165,22 @@ function writeStringAssignment(ast_node){
   HEAP_BEGINNING = HEAP_BEGINNING - (heap.length / 2);
   writeToOutputString("A9" + (HEAP_BEGINNING + 1).toString(16).toUpperCase());
   writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+}
+
+function writeBooleanAssignment(ast_node){
+  if(ast_node.getChild(1).val == "true"){
+    writeToOutputString("A901");
+    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+  } else if(ast_node.getChild(1).val == "false"){
+    writeToOutputString("A900");
+    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+  } else if(ast_node.getChild(1).val.match(/[a-z]/g)){
+    writeToOutputString("AD" + lookupVariableTemp(ast_node.getChild(1).val));
+    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+  } else{
+    //resolveComparison();
+    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+  }
 }
 
 function writePrint(ast_node){
