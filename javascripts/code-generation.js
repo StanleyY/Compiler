@@ -180,16 +180,9 @@ function writeBooleanAssignment(ast_node){
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   } else{
     resolveComparison(ast_node.getChild(1));
-    if(ast_node.getChild(1).val == "==") {
-      writeToOutputString("A9" + "00");
-      writeToOutputString("D0" + "02");
-      writeToOutputString("A9" + "01");
-    }
-    else{
-      writeToOutputString("A9" + "01");
-      writeToOutputString("D0" + "02");
-      writeToOutputString("A9" + "00");
-    }
+    writeToOutputString("A9" + "00");
+    writeToOutputString("D0" + "02");
+    writeToOutputString("A9" + "01");
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   }
 }
@@ -218,6 +211,15 @@ function resolveComparison(ast_node){
   else {
     writeToOutputString("A9" + BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
     writeToOutputString("8D" + ADDITION_TEMP);
+    writeToOutputString("EC" + ADDITION_TEMP);
+  }
+  if(ast_node.val == "!="){
+    console.log("Flipping Z");
+    writeToOutputString("A9" + "00");
+    writeToOutputString("D0" + "02");
+    writeToOutputString("A9" + "01");
+    writeToOutputString("8D" + ADDITION_TEMP);
+    writeToOutputString("A2" + BOOLEAN_TRANSLATION["false"]);
     writeToOutputString("EC" + ADDITION_TEMP);
   }
 }
