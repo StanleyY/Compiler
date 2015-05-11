@@ -180,12 +180,22 @@ function writeBooleanAssignment(ast_node){
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   } else{
     resolveComparison(ast_node.getChild(1));
+    if(ast_node.getChild(1).val == "==") {
+      writeToOutputString("A9" + "00");
+      writeToOutputString("D0" + "02");
+      writeToOutputString("A9" + "01");
+    }
+    else{
+      writeToOutputString("A9" + "01");
+      writeToOutputString("D0" + "02");
+      writeToOutputString("A9" + "00");
+    }
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   }
 }
 
 function resolveComparison(ast_node){
-  // Once this function finishes, the final truth value will be in the accumulator.
+  // Once this function finishes, the Z flag should be set appropriately.
   if(ADDITION_TEMP.length == 0) {
     // Only reserves heap space if addition is used.
     ADDITION_TEMP = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
@@ -209,16 +219,6 @@ function resolveComparison(ast_node){
     writeToOutputString("A9" + BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
     writeToOutputString("8D" + ADDITION_TEMP);
     writeToOutputString("EC" + ADDITION_TEMP);
-  }
-  if(ast_node.val == "==") {
-    writeToOutputString("A9" + "00");
-    writeToOutputString("D0" + "02");
-    writeToOutputString("A9" + "01");
-  }
-  else{
-    writeToOutputString("A9" + "01");
-    writeToOutputString("D0" + "02");
-    writeToOutputString("A9" + "00");
   }
 }
 
