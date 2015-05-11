@@ -1,5 +1,9 @@
 console.log("Code Gen Loaded");
 
+BOOLEAN_TRANSLATION = {};
+BOOLEAN_TRANSLATION["false"] = "00";
+BOOLEAN_TRANSLATION["true"] = "01";
+
 OUTPUT_STRING = "";
 JUMP_TABLE = [];
 VARIABLE_TABLE = {};
@@ -168,18 +172,49 @@ function writeStringAssignment(ast_node){
 }
 
 function writeBooleanAssignment(ast_node){
-  if(ast_node.getChild(1).val == "true"){
-    writeToOutputString("A901");
-    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
-  } else if(ast_node.getChild(1).val == "false"){
-    writeToOutputString("A900");
+  if(ast_node.getChild(1).val.match(/true|false/g) != null){
+    writeToOutputString("A9" + BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   } else if(ast_node.getChild(1).val.match(/[a-z]/g)){
     writeToOutputString("AD" + lookupVariableTemp(ast_node.getChild(1).val));
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   } else{
-    //resolveComparison();
+    resolveComparison(ast_node.getChild(1));
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+  }
+}
+
+function resolveComparison(ast_node){
+  // Once this function finishes, the final truth value will be in the accumulator.
+  if(ADDITION_TEMP.length == 0) {
+    // Only reserves heap space if addition is used.
+    ADDITION_TEMP = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
+    HEAP_STRING = "00";
+    HEAP_BEGINNING = HEAP_BEGINNING - 1;
+  }
+  if((ast_node.getChild(0).val + ast_node.getChild(1).val).match(/(==)|(!=)/g) != null){
+    writeToCodeOutput("Nested BoolOp not supported yet");
+    raiseFatalError("Nested BoolOp not supported yet");
+  }
+  if(ast_node.val == "==") {
+    if(ast_node.getChild(0).val.match(/true|false/g) == null){
+      writeToOutputString("AE" + BOOLEAN_TRANSLATION[ast_node.getChild(0).val]);
+    }
+    else {
+      console.log("STRAIGHT VALUE");
+      console.log("A2" + BOOLEAN_TRANSLATION[ast_node.getChild(0).val]);
+      writeToOutputString("A2" + BOOLEAN_TRANSLATION[ast_node.getChild(0).val]);
+    }
+    writeToOutputString("A9" + BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
+    writeToOutputString("8D" + ADDITION_TEMP);
+    writeToOutputString("EC" + ADDITION_TEMP);
+    writeToOutputString("A9" + "00");
+    writeToOutputString("D0" + "02");
+    writeToOutputString("A9" + "01");
+  }
+  else{
+    writeToCodeOutput("!= is not supported yet");
+    raiseFatalError("!= is not supported yet");
   }
 }
 
