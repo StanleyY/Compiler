@@ -198,16 +198,19 @@ function resolveComparison(ast_node){
   }
   if(ast_node.val == "==") {
     if(ast_node.getChild(0).val.match(/true|false/g) == null){
-      writeToOutputString("AE" + BOOLEAN_TRANSLATION[ast_node.getChild(0).val]);
+      writeToOutputString("AE" + lookupVariableTemp(ast_node.getChild(0).val));
     }
     else {
-      console.log("STRAIGHT VALUE");
-      console.log("A2" + BOOLEAN_TRANSLATION[ast_node.getChild(0).val]);
       writeToOutputString("A2" + BOOLEAN_TRANSLATION[ast_node.getChild(0).val]);
     }
-    writeToOutputString("A9" + BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
-    writeToOutputString("8D" + ADDITION_TEMP);
-    writeToOutputString("EC" + ADDITION_TEMP);
+    if(ast_node.getChild(1).val.match(/true|false/g) == null){
+      writeToOutputString("EC" + lookupVariableTemp(ast_node.getChild(1).val));
+    }
+    else {
+      writeToOutputString("A9" + BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
+      writeToOutputString("8D" + ADDITION_TEMP);
+      writeToOutputString("EC" + ADDITION_TEMP);
+    }
     writeToOutputString("A9" + "00");
     writeToOutputString("D0" + "02");
     writeToOutputString("A9" + "01");
