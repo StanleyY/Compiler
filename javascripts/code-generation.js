@@ -196,28 +196,29 @@ function resolveComparison(ast_node){
     writeToCodeOutput("Nested BoolOp not supported yet");
     raiseFatalError("Nested BoolOp not supported yet");
   }
+  if(ast_node.getChild(0).val.match(/true|false/g) == null){
+    writeToOutputString("AE" + lookupVariableTemp(ast_node.getChild(0).val));
+  }
+  else {
+    writeToOutputString("A2" + BOOLEAN_TRANSLATION[ast_node.getChild(0).val]);
+  }
+  if(ast_node.getChild(1).val.match(/true|false/g) == null){
+    writeToOutputString("EC" + lookupVariableTemp(ast_node.getChild(1).val));
+  }
+  else {
+    writeToOutputString("A9" + BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
+    writeToOutputString("8D" + ADDITION_TEMP);
+    writeToOutputString("EC" + ADDITION_TEMP);
+  }
   if(ast_node.val == "==") {
-    if(ast_node.getChild(0).val.match(/true|false/g) == null){
-      writeToOutputString("AE" + lookupVariableTemp(ast_node.getChild(0).val));
-    }
-    else {
-      writeToOutputString("A2" + BOOLEAN_TRANSLATION[ast_node.getChild(0).val]);
-    }
-    if(ast_node.getChild(1).val.match(/true|false/g) == null){
-      writeToOutputString("EC" + lookupVariableTemp(ast_node.getChild(1).val));
-    }
-    else {
-      writeToOutputString("A9" + BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
-      writeToOutputString("8D" + ADDITION_TEMP);
-      writeToOutputString("EC" + ADDITION_TEMP);
-    }
     writeToOutputString("A9" + "00");
     writeToOutputString("D0" + "02");
     writeToOutputString("A9" + "01");
   }
   else{
-    writeToCodeOutput("!= is not supported yet");
-    raiseFatalError("!= is not supported yet");
+    writeToOutputString("A9" + "01");
+    writeToOutputString("D0" + "02");
+    writeToOutputString("A9" + "00");
   }
 }
 
