@@ -78,6 +78,7 @@ function readBlock(ast_node){
     else if(child_type == "VarDecl") writeVariable(ast_node.children[i]);
     else if(child_type == "Assign") writeAssignment(ast_node.children[i]);
     else if(child_type == "Print") writePrint(ast_node.children[i]);
+    else if(child_type == "If") writeIf(ast_node.children[i]);
     else raiseFatalError("Horrible Code Gen Problem");
   }
   CURRENT_SCOPE = PREVIOUS_SCOPE[CURRENT_SCOPE];
@@ -180,6 +181,19 @@ function writePrint(ast_node){
   else{
     // TODO: Write code for direct prints
   }
+}
+
+function writeIf(ast_node){
+  var comparison = ast_node.getChild(0).val;
+  if(comparison == "false"){
+    // Don't bother generating code for "if false" statements
+    writeOutput("Found constant false if statement, skipping.");
+  }
+  else if(comparison == "true"){
+    writeOutput("Found constant true if statement, writing.");
+    readBlock(ast_node.getChild(1));
+  }
+  else raiseFatalError("Horrible Code Gen Problem");
 }
 
 function backpatch(){
