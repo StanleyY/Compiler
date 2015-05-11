@@ -251,7 +251,16 @@ function writeIf(ast_node){
     writeOutput("Found constant true if statement, writing.");
     readBlock(ast_node.getChild(1));
   }
-  else raiseFatalError("Horrible Code Gen Problem");
+  else{
+    resolveComparison(ast_node.getChild(0));
+    writeToOutputString("D0J0");
+    var distance = OUTPUT_STRING.length / 2;
+    readBlock(ast_node.getChild(1));
+    distance = (OUTPUT_STRING.length / 2) - distance;
+    distance = distance.toString(16).toUpperCase();
+    if(distance.length == 1) distance = "0" + distance.toString(16).toUpperCase();
+    OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("J0", 'g'), distance);
+  }
 }
 
 function backpatch(){
