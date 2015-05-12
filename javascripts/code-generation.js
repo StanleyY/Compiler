@@ -148,11 +148,11 @@ function writeAddition(ast_node){
   while(ast_node.getChild(1).val == "+"){
     ast_node = ast_node.getChild(1);
     loadAccConst("0" + ast_node.getChild(0).val);
-    writeToOutputString("6D" + TEMP_INT);
+    addMemToAcc(TEMP_INT);
     storeAccMem(TEMP_INT);
   }
   loadAccConst("0" + ast_node.getChild(0).val);
-  writeToOutputString("6D" + TEMP_INT);
+  addMemToAcc(TEMP_INT);
 }
 
 function writeStringAssignment(ast_node){
