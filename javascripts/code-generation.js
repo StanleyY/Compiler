@@ -97,7 +97,7 @@ function writeVariable(ast_node){
   if(ast_node.getChild(0).val != "string") {
     //We initialize int to 0 and boolean to false.
     loadAccConst("00");
-    writeToOutputString("8D" + temp_id);
+    storeAccMem(temp_id);
   }
   TEMP_NUM++;
 }
@@ -113,17 +113,17 @@ function writeAssignment(ast_node){
 function writeIntAssignment(ast_node){
   if(ast_node.getChild(1).val == "+"){
     writeAddition(ast_node.getChild(1));
-    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+    storeAccMem(lookupVariableTemp(ast_node.getChild(0).val));
   }
   else if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
     // Setting to another ID's value
     loadAccMem(lookupVariableTemp(ast_node.getChild(1).val));
-    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+    storeAccMem(lookupVariableTemp(ast_node.getChild(0).val));
   }
   else{
     // Assigning a digit
     loadAccConst("0" + ast_node.getChild(1).val)
-    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+    storeAccMem(lookupVariableTemp(ast_node.getChild(0).val));
   }
 }
 
@@ -136,12 +136,12 @@ function writeAddition(ast_node){
   if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
     //The right child is an ID.
     loadAccMem(lookupVariableTemp(ast_node.getChild(1).val));
-    writeToOutputString("8D" + TEMP_INT);
+    storeAccMem(TEMP_INT);
   }
   else{
     //The right child is a digit.
     loadAccConst("0" + ast_node.getChild(1).val);
-    writeToOutputString("8D" + TEMP_INT);
+    storeAccMem(TEMP_INT);
   }
 
   ast_node = original;
@@ -149,7 +149,7 @@ function writeAddition(ast_node){
     ast_node = ast_node.getChild(1);
     loadAccConst("0" + ast_node.getChild(0).val);
     writeToOutputString("6D" + TEMP_INT);
-    writeToOutputString("8D" + TEMP_INT);
+    storeAccMem(TEMP_INT);
   }
   loadAccConst("0" + ast_node.getChild(0).val);
   writeToOutputString("6D" + TEMP_INT);
@@ -166,22 +166,22 @@ function writeStringAssignment(ast_node){
   HEAP_STRING = heap + HEAP_STRING;
   HEAP_BEGINNING = HEAP_BEGINNING - (heap.length / 2);
   loadAccConst((HEAP_BEGINNING + 1).toString(16).toUpperCase());
-  writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+  storeAccMem(lookupVariableTemp(ast_node.getChild(0).val));
 }
 
 function writeBooleanAssignment(ast_node){
   if(ast_node.getChild(1).val.match(/true|false/g) != null){
     loadAccConst(BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
-    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+    storeAccMem(lookupVariableTemp(ast_node.getChild(0).val));
   } else if(ast_node.getChild(1).val.match(/[a-z]/g)){
     loadAccMem(lookupVariableTemp(ast_node.getChild(1).val));
-    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+    storeAccMem(lookupVariableTemp(ast_node.getChild(0).val));
   } else{
     resolveComparison(ast_node.getChild(1));
     loadAccConst("00");
     writeToOutputString("D0" + "02");
     loadAccConst("01");
-    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
+    storeAccMem(lookupVariableTemp(ast_node.getChild(0).val));
   }
 }
 
@@ -203,7 +203,7 @@ function resolveComparison(ast_node){
   }
   else {
     loadAccConst(BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
-    writeToOutputString("8D" + TEMP_INT);
+    storeAccMem(TEMP_INT);
     writeToOutputString("EC" + TEMP_INT);
   }
   if(ast_node.val == "!="){
@@ -211,7 +211,7 @@ function resolveComparison(ast_node){
     loadAccConst("00");
     writeToOutputString("D0" + "02");
     loadAccConst("01");
-    writeToOutputString("8D" + TEMP_INT);
+    storeAccMem(TEMP_INT);
     writeToOutputString("A2" + BOOLEAN_TRANSLATION["false"]);
     writeToOutputString("EC" + TEMP_INT);
   }
@@ -268,7 +268,7 @@ function writeWhile(ast_node){
     raiseWarning("Found infinite while statement.");
     readBlock(ast_node.getChild(1));
     loadAccConst(BOOLEAN_TRANSLATION["false"]);
-    writeToOutputString("8D" + TEMP_INT);
+    storeAccMem(TEMP_INT);
     writeToOutputString("A2" + BOOLEAN_TRANSLATION["true"]);
     writeToOutputString("EC" + TEMP_INT);
     var current_location = (OUTPUT_STRING.length / 2);
