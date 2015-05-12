@@ -179,7 +179,7 @@ function writeBooleanAssignment(ast_node){
   } else{
     resolveComparison(ast_node.getChild(1));
     loadAccConst("00");
-    writeToOutputString("D0" + "02");
+    jumpBytes("02");
     loadAccConst("01");
     storeAccMem(lookupVariableTemp(ast_node.getChild(0).val));
   }
@@ -199,21 +199,21 @@ function resolveComparison(ast_node){
     loadXConst(BOOLEAN_TRANSLATION[ast_node.getChild(0).val]);
   }
   if(ast_node.getChild(1).val.match(/true|false/g) == null){
-    writeToOutputString("EC" + lookupVariableTemp(ast_node.getChild(1).val));
+    compareMemToX(lookupVariableTemp(ast_node.getChild(1).val));
   }
   else {
     loadAccConst(BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
     storeAccMem(TEMP_INT);
-    writeToOutputString("EC" + TEMP_INT);
+    compareMemToX(TEMP_INT);
   }
   if(ast_node.val == "!="){
     console.log("Flipping Z");
     loadAccConst("00");
-    writeToOutputString("D0" + "02");
+    jumpBytes("02");
     loadAccConst("01");
     storeAccMem(TEMP_INT);
     loadXConst(BOOLEAN_TRANSLATION["false"]);
-    writeToOutputString("EC" + TEMP_INT);
+    compareMemToX(TEMP_INT);
   }
 }
 
@@ -248,7 +248,7 @@ function writeIf(ast_node){
   }
   else{
     resolveComparison(ast_node.getChild(0));
-    writeToOutputString("D0J0");
+    jumpBytes("J0");
     var distance = OUTPUT_STRING.length / 2;
     readBlock(ast_node.getChild(1));
     distance = (OUTPUT_STRING.length / 2) - distance;
@@ -272,9 +272,9 @@ function writeWhile(ast_node){
     loadAccConst(BOOLEAN_TRANSLATION["false"]);
     storeAccMem(TEMP_INT);
     loadXConst(BOOLEAN_TRANSLATION["true"]);
-    writeToOutputString("EC" + TEMP_INT);
+    compareMemToX(TEMP_INT);
     var current_location = (OUTPUT_STRING.length / 2);
-    writeToOutputString("D0" + (254 - current_location + start_location).toString(16).toUpperCase());
+    jumpBytes((254 - current_location + start_location).toString(16).toUpperCase());
   }
 }
 
