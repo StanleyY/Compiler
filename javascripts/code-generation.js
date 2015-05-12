@@ -289,6 +289,11 @@ function writePrint(ast_node){
     loadYMem(TEMP_INT);
     loadXConst("01");
   }
+  else if(child.match(/\"/g) != null){
+    var address = writeStringToHeap(ast_node.getChild(0));
+    loadYConst(address);
+    loadXConst("02");
+  }
   else if(child.match(/[a-z]/g) != null){
     var var_type = lookupSymbolType(child);
     loadYMem(lookupVariableTemp(child));
