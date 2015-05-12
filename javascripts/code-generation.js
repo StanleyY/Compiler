@@ -128,6 +128,7 @@ function writeIntAssignment(ast_node){
 }
 
 function writeAddition(ast_node){
+  // The total sum is stored in the accumulator.
   checkTempIntExistence();
   var original = ast_node;
   while(ast_node.getChild(1).val == "+"){
@@ -192,20 +193,10 @@ function resolveComparison(ast_node){
     writeToCodeOutput("Nested BoolOp not supported yet");
     raiseFatalError("Nested BoolOp not supported yet");
   }
-  if(ast_node.getChild(0).val.match(/true|false/g) == null){
-    loadXMem(lookupVariableTemp(ast_node.getChild(0).val));
-  }
-  else {
-    loadXConst(BOOLEAN_TRANSLATION[ast_node.getChild(0).val]);
-  }
-  if(ast_node.getChild(1).val.match(/true|false/g) == null){
-    compareMemToX(lookupVariableTemp(ast_node.getChild(1).val));
-  }
-  else {
-    loadAccConst(BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
-    storeAccMem(TEMP_INT);
-    compareMemToX(TEMP_INT);
-  }
+
+  resolveLeft(ast_node.getChild(0));
+  resolveRight(ast_node.getChild(1));
+
   if(ast_node.val == "!="){
     console.log("Flipping Z");
     loadAccConst("00");
@@ -215,6 +206,55 @@ function resolveComparison(ast_node){
     loadXConst(BOOLEAN_TRANSLATION["false"]);
     compareMemToX(TEMP_INT);
   }
+}
+
+function resolveLeft(ast_node){
+  if(ast_node.val.match(/true|false/g) != null){
+    loadXConst(BOOLEAN_TRANSLATION[ast_node.val]);
+  }
+  else if(ast_node.val.match(/[a-z]/g) != null){
+    if(lookupSymbolType(ast_node.val) == "string"){
+      writeToCodeOutput("String Comparison not supported yet");
+      raiseFatalError("String Comparison not supported yet");
+    }
+    loadXMem(lookupVariableTemp(ast_node.val));
+  }
+  else if(ast_node.val.match(/[0-9]/g) != null){
+    loadXConst("0" + ast_node.val);
+  }
+  else if(ast_node.val.match(/\+/g) != null){
+    writeAddition(ast_node);
+    storeAccMem(TEMP_INT);
+    loadXMem(TEMP_INT);
+  }
+  else raiseFatalError("Horrible Code Gen Problem");
+}
+
+function resolveRight(ast_node){
+  //Resolves the left portion appropriately and sets the Z flag.
+  if(ast_node.val.match(/true|false/g) != null){
+    loadAccConst(BOOLEAN_TRANSLATION[ast_node.val]);
+    storeAccMem(TEMP_INT);
+    compareMemToX(TEMP_INT);
+  }
+  else if(ast_node.val.match(/[a-z]/g) != null){
+    if(lookupSymbolType(ast_node.val) == "string"){
+      writeToCodeOutput("String Comparison not supported yet");
+      raiseFatalError("String Comparison not supported yet");
+    }
+    compareMemToX(lookupVariableTemp(ast_node.val));
+  }
+  else if(ast_node.val.match(/[0-9]/g) != null){
+    loadAccConst("0" + ast_node.val);
+    storeAccMem(TEMP_INT);
+    compareMemToX(TEMP_INT);
+  }
+  else if(ast_node.val.match(/\+/g) != null){
+    writeAddition(ast_node);
+    storeAccMem(TEMP_INT);
+    compareMemToX(TEMP_INT);
+  }
+  else raiseFatalError("Horrible Code Gen Problem");
 }
 
 function writePrint(ast_node){
