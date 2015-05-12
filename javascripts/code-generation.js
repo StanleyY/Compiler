@@ -198,13 +198,7 @@ function resolveComparison(ast_node){
   resolveRight(ast_node.getChild(1));
 
   if(ast_node.val == "!="){
-    console.log("Flipping Z");
-    loadAccConst("00");
-    jumpBytes("02");
-    loadAccConst("01");
-    storeAccMem(TEMP_INT);
-    loadXConst(BOOLEAN_TRANSLATION["false"]);
-    compareMemToX(TEMP_INT);
+    flipZ();
   }
 }
 
@@ -255,6 +249,16 @@ function resolveRight(ast_node){
     compareMemToX(TEMP_INT);
   }
   else raiseFatalError("Horrible Code Gen Problem");
+}
+
+function flipZ(){
+  console.log("Flipping Z");
+  loadAccConst("00");
+  jumpBytes("02");
+  loadAccConst("01");
+  storeAccMem(TEMP_INT);
+  loadXConst(BOOLEAN_TRANSLATION["false"]);
+  compareMemToX(TEMP_INT);
 }
 
 function writePrint(ast_node){
