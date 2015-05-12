@@ -221,12 +221,14 @@ function writePrint(ast_node){
   var child = ast_node.getChild(0).val;
   if(child.match(/[a-z]/g) != null){
     var var_type = lookupSymbolType(child);
-    writeToOutputString("AC" + lookupVariableTemp(child));
+    loadYMem(lookupVariableTemp(child));
     if(var_type == "string"){
-      writeToOutputString("A202FF");
+      loadXConst("02");
+      sysCall();
     }
     else{
-      writeToOutputString("A201FF");
+      loadXConst("01");
+      sysCall();
     }
   }
   else{
