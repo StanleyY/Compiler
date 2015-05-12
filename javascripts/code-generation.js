@@ -83,6 +83,7 @@ function readBlock(ast_node){
     else if(child_type == "Assign") writeAssignment(ast_node.children[i]);
     else if(child_type == "Print") writePrint(ast_node.children[i]);
     else if(child_type == "If") writeIf(ast_node.children[i]);
+    else if(child_type == "While") writeWhile(ast_node.children[i]);
     else raiseFatalError("Horrible Code Gen Problem");
   }
   CURRENT_SCOPE = PREVIOUS_SCOPE[CURRENT_SCOPE];
@@ -245,7 +246,7 @@ function writeIf(ast_node){
   var comparison = ast_node.getChild(0).val;
   if(comparison == "false"){
     // Don't bother generating code for "if false" statements
-    writeOutput("Found constant false if statement, skipping.");
+    raiseWarning("Found constant false if statement, skipping.");
   }
   else if(comparison == "true"){
     writeOutput("Found constant true if statement, writing.");
@@ -260,6 +261,31 @@ function writeIf(ast_node){
     distance = distance.toString(16).toUpperCase();
     if(distance.length == 1) distance = "0" + distance.toString(16).toUpperCase();
     OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("J0", 'g'), distance);
+  }
+}
+
+function writeWhile(ast_node){
+  if(ADDITION_TEMP.length == 0) {
+    // Only reserves heap space if addition is used.
+    ADDITION_TEMP = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
+    HEAP_STRING = "00";
+    HEAP_BEGINNING = HEAP_BEGINNING - 1;
+  }
+  var comparison = ast_node.getChild(0).val;
+  var start_location = (OUTPUT_STRING.length / 2);
+  if(comparison == "false"){
+    // Don't bother generating code for "if false" statements
+    raiseWarning("Found constant false while statement, skipping.");
+  }
+  else if(comparison == "true"){
+    raiseWarning("Found infinite while statement.");
+    readBlock(ast_node.getChild(1));
+    writeToOutputString("A9" + BOOLEAN_TRANSLATION["false"]);
+    writeToOutputString("8D" + ADDITION_TEMP);
+    writeToOutputString("A2" + BOOLEAN_TRANSLATION["true"]);
+    writeToOutputString("EC" + ADDITION_TEMP);
+    var current_location = (OUTPUT_STRING.length / 2);
+    writeToOutputString("D0" + (254 - current_location + start_location).toString(16).toUpperCase());
   }
 }
 
