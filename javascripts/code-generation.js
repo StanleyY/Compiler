@@ -263,30 +263,38 @@ function flipZ(){
 
 function writePrint(ast_node){
   var child = ast_node.getChild(0).val;
-  if(child.match(/[a-z]/g) != null){
-    var var_type = lookupSymbolType(child);
-    loadYMem(lookupVariableTemp(child));
-    if(var_type == "string"){
-      loadXConst("02");
-      sysCall();
-    }
-    else{
-      loadXConst("01");
-      sysCall();
-    }
+  if(child.match(/(true)|(false)/g) != null){
+    loadYConst(BOOLEAN_TRANSLATION[child]);
+    loadXConst("01");
+  }
+  else if(child.match(/==|!=/g) != null){
+    resolveComparison(ast_node.getChild(0));
+    loadYConst(BOOLEAN_TRANSLATION["false"]);
+    jumpBytes("02");
+    loadYConst(BOOLEAN_TRANSLATION["true"]);
+    loadXConst("01");
   }
   else if(child.match(/[0-9]/g) != null){
     loadYConst("0" + child);
     loadXConst("01");
-    sysCall();
   }
   else if(child.match(/\+/g) != null){
     writeAddition(ast_node.getChild(0));
     storeAccMem(TEMP_INT);
     loadYMem(TEMP_INT);
     loadXConst("01");
-    sysCall();
   }
+  else if(child.match(/[a-z]/g) != null){
+    var var_type = lookupSymbolType(child);
+    loadYMem(lookupVariableTemp(child));
+    if(var_type == "string"){
+      loadXConst("02");
+    }
+    else{
+      loadXConst("01");
+    }
+  }
+  sysCall();
 }
 
 function writeIf(ast_node){
