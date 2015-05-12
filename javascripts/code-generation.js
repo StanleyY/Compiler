@@ -8,6 +8,7 @@ OUTPUT_STRING = "";
 JUMP_TABLE = [];
 VARIABLE_TABLE = {};
 TEMP_NUM = 0;
+JUMP_NUM = 0;
 HEAP_BEGINNING = 255;
 HEAP_STRING = "";
 TEMP_INT = "";
@@ -18,6 +19,7 @@ function resetCodeGen(){
   HEAP_STRING = "";
   JUMP_TABLE = [];
   VARIABLE_TABLE = {};
+  JUMP_NUM = 0;
   TEMP_NUM = 0;
   HEAP_BEGINNING = 255;
 }
@@ -321,7 +323,14 @@ function writeIf(ast_node){
   }
   else{
     resolveComparison(ast_node.getChild(0));
-    writeJumpBlock(ast_node.getChild(1));
+    var jump_temp = generateJumpTemp();
+    jumpBytes(jump_temp);
+    var distance = OUTPUT_STRING.length / 2;
+    readBlock(ast_node.getChild(1));
+    distance = (OUTPUT_STRING.length / 2) - distance;
+    distance = distance.toString(16).toUpperCase();
+    if(distance.length == 1) distance = "0" + distance.toString(16).toUpperCase();
+    OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp(jump_temp, 'g'), distance);
   }
 }
 
@@ -346,21 +355,25 @@ function writeWhile(ast_node){
   else{
     writeOutput("Found While Loop with comparison");
     resolveComparison(ast_node.getChild(0));
-    writeJumpBlock(ast_node.getChild(1));
-    flipZ();
+
+    var jump_temp = generateJumpTemp();
+    jumpBytes(jump_temp);
+    var while_block_size = OUTPUT_STRING.length;
+    readBlock(ast_node.getChild(1));
+    // Force the Z to be 0
+    loadXConst("00");
+    loadAccConst("01");
+    storeAccMem(TEMP_INT);
+    compareMemToX(TEMP_INT);
+    // Loop back
     var current_location = (OUTPUT_STRING.length / 2);
     jumpBytes((254 - current_location + start_location).toString(16).toUpperCase());
-  }
-}
 
-function writeJumpBlock(ast_node){
-  jumpBytes("J0");
-  var distance = OUTPUT_STRING.length / 2;
-  readBlock(ast_node);
-  distance = (OUTPUT_STRING.length / 2) - distance;
-  distance = distance.toString(16).toUpperCase();
-  if(distance.length == 1) distance = "0" + distance.toString(16).toUpperCase();
-  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("J0", 'g'), distance);
+    while_block_size = (OUTPUT_STRING.length - while_block_size) / 2;
+    while_block_size = while_block_size.toString(16).toUpperCase();
+    if(while_block_size.length == 1) while_block_size = "0" + while_block_size.toString(16).toUpperCase();
+    OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp(jump_temp, 'g'), while_block_size);
+  }
 }
 
 function checkTempIntExistence(){
@@ -371,6 +384,11 @@ function checkTempIntExistence(){
     HEAP_BEGINNING = HEAP_BEGINNING - 1;
     writeOutput("A temporary byte was needed and heap space was reserved at: " + TEMP_INT);
   }
+}
+
+function generateJumpTemp(){
+  JUMP_NUM++;
+  return "J" + JUMP_NUM;
 }
 
 function backpatch(){
