@@ -36,8 +36,8 @@ function jumpBytes(value){
   writeToOutputString("D0" + value);
 }
 
-function increaseMem(address){
-  writeToOutputString("EE" + address);
+function addAccToMem(address){
+  writeToOutputString("6D" + address);
 }
 
 function sysCall(){
