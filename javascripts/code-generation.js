@@ -10,10 +10,10 @@ VARIABLE_TABLE = {};
 TEMP_NUM = 0;
 HEAP_BEGINNING = 255;
 HEAP_STRING = "";
-ADDITION_TEMP = "";
+TEMP_INT = "";
 
 function resetCodeGen(){
-  ADDITION_TEMP = "";
+  TEMP_INT = "";
   OUTPUT_STRING = "";
   HEAP_STRING = "";
   JUMP_TABLE = [];
@@ -126,12 +126,7 @@ function writeIntAssignment(ast_node){
 }
 
 function writeAddition(ast_node){
-  if(ADDITION_TEMP.length == 0) {
-    // Only reserves heap space if addition is used.
-    ADDITION_TEMP = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
-    HEAP_STRING = "00";
-    HEAP_BEGINNING = HEAP_BEGINNING - 1;
-  }
+  checkTempIntExistence();
   var original = ast_node;
   while(ast_node.getChild(1).val == "+"){
     ast_node = ast_node.getChild(1);
@@ -139,23 +134,23 @@ function writeAddition(ast_node){
   if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
     //The right child is an ID.
     writeToOutputString("AD" + lookupVariableTemp(ast_node.getChild(1).val));
-    writeToOutputString("8D" + ADDITION_TEMP);
+    writeToOutputString("8D" + TEMP_INT);
   }
   else{
     //The right child is a digit.
     writeToOutputString("A90" + ast_node.getChild(1).val);
-    writeToOutputString("8D" + ADDITION_TEMP);
+    writeToOutputString("8D" + TEMP_INT);
   }
 
   ast_node = original;
   while(ast_node.getChild(1).val == "+"){
     ast_node = ast_node.getChild(1);
     writeToOutputString("A90" + ast_node.getChild(0).val);
-    writeToOutputString("6D" + ADDITION_TEMP);
-    writeToOutputString("8D" + ADDITION_TEMP);
+    writeToOutputString("6D" + TEMP_INT);
+    writeToOutputString("8D" + TEMP_INT);
   }
   writeToOutputString("A90" + ast_node.getChild(0).val);
-  writeToOutputString("6D" + ADDITION_TEMP);
+  writeToOutputString("6D" + TEMP_INT);
 }
 
 function writeStringAssignment(ast_node){
@@ -190,12 +185,7 @@ function writeBooleanAssignment(ast_node){
 
 function resolveComparison(ast_node){
   // Once this function finishes, the Z flag should be set appropriately.
-  if(ADDITION_TEMP.length == 0) {
-    // Only reserves heap space if addition is used.
-    ADDITION_TEMP = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
-    HEAP_STRING = "00";
-    HEAP_BEGINNING = HEAP_BEGINNING - 1;
-  }
+  checkTempIntExistence();
   if((ast_node.getChild(0).val + ast_node.getChild(1).val).match(/(==)|(!=)/g) != null){
     writeToCodeOutput("Nested BoolOp not supported yet");
     raiseFatalError("Nested BoolOp not supported yet");
@@ -211,17 +201,17 @@ function resolveComparison(ast_node){
   }
   else {
     writeToOutputString("A9" + BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
-    writeToOutputString("8D" + ADDITION_TEMP);
-    writeToOutputString("EC" + ADDITION_TEMP);
+    writeToOutputString("8D" + TEMP_INT);
+    writeToOutputString("EC" + TEMP_INT);
   }
   if(ast_node.val == "!="){
     console.log("Flipping Z");
     writeToOutputString("A9" + "00");
     writeToOutputString("D0" + "02");
     writeToOutputString("A9" + "01");
-    writeToOutputString("8D" + ADDITION_TEMP);
+    writeToOutputString("8D" + TEMP_INT);
     writeToOutputString("A2" + BOOLEAN_TRANSLATION["false"]);
-    writeToOutputString("EC" + ADDITION_TEMP);
+    writeToOutputString("EC" + TEMP_INT);
   }
 }
 
@@ -265,12 +255,7 @@ function writeIf(ast_node){
 }
 
 function writeWhile(ast_node){
-  if(ADDITION_TEMP.length == 0) {
-    // Only reserves heap space if addition is used.
-    ADDITION_TEMP = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
-    HEAP_STRING = "00";
-    HEAP_BEGINNING = HEAP_BEGINNING - 1;
-  }
+  checkTempIntExistence();
   var comparison = ast_node.getChild(0).val;
   var start_location = (OUTPUT_STRING.length / 2);
   if(comparison == "false"){
@@ -281,11 +266,20 @@ function writeWhile(ast_node){
     raiseWarning("Found infinite while statement.");
     readBlock(ast_node.getChild(1));
     writeToOutputString("A9" + BOOLEAN_TRANSLATION["false"]);
-    writeToOutputString("8D" + ADDITION_TEMP);
+    writeToOutputString("8D" + TEMP_INT);
     writeToOutputString("A2" + BOOLEAN_TRANSLATION["true"]);
-    writeToOutputString("EC" + ADDITION_TEMP);
+    writeToOutputString("EC" + TEMP_INT);
     var current_location = (OUTPUT_STRING.length / 2);
     writeToOutputString("D0" + (254 - current_location + start_location).toString(16).toUpperCase());
+  }
+}
+
+function checkTempIntExistence(){
+  if(TEMP_INT.length == 0) {
+    // Only reserves heap space if addition is used.
+    TEMP_INT = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
+    HEAP_STRING = "00";
+    HEAP_BEGINNING = HEAP_BEGINNING - 1;
   }
 }
 
