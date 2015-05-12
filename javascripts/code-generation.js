@@ -64,7 +64,7 @@ function runCodeGen(){
   CURRENT_SCOPE = -1;
   MAX_SCOPE = -1;
   readBlock(AST);
-  //OUTPUT_STRING += "00"; Not sure if safety break is needed.
+  writeToOutputString("00");
   backpatch();
   fillOutput();
   OUTPUT_STRING = OUTPUT_STRING + HEAP_STRING;
@@ -172,7 +172,9 @@ function writeStringToHeap(ast_node){
   console.log("HEAP STRING IS: " + heap);
   HEAP_STRING = heap + HEAP_STRING;
   HEAP_BEGINNING = HEAP_BEGINNING - (heap.length / 2);
-  return (HEAP_BEGINNING + 1).toString(16).toUpperCase();
+  var address = (HEAP_BEGINNING + 1).toString(16).toUpperCase();
+  writeOutput("Wrote String \"{0}\" to heap at address {1}".format(s.substring(2, s.length-2), address));
+  return address;
 }
 
 function writeBooleanAssignment(ast_node){
@@ -365,8 +367,9 @@ function checkTempIntExistence(){
   if(TEMP_INT.length == 0) {
     // Only reserves heap space if addition is used.
     TEMP_INT = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
-    HEAP_STRING = "00";
+    HEAP_STRING = "00" + HEAP_STRING;
     HEAP_BEGINNING = HEAP_BEGINNING - 1;
+    writeOutput("A temporary byte was needed and heap space was reserved at: " + TEMP_INT);
   }
 }
 
@@ -389,5 +392,5 @@ function fixTemp(temp, address){
 }
 
 function fillOutput(){
-  OUTPUT_STRING = OUTPUT_STRING + Array((HEAP_BEGINNING * 2) - OUTPUT_STRING.length + 3).join("0");
+  OUTPUT_STRING = OUTPUT_STRING + Array(513 - (HEAP_STRING.length + OUTPUT_STRING.length)).join("0");
 }
