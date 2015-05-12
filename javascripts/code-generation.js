@@ -275,8 +275,17 @@ function writePrint(ast_node){
       sysCall();
     }
   }
-  else{
-    // TODO: Write code for direct prints
+  else if(child.match(/[0-9]/g) != null){
+    loadYConst("0" + child);
+    loadXConst("01");
+    sysCall();
+  }
+  else if(child.match(/\+/g) != null){
+    writeAddition(ast_node.getChild(0));
+    storeAccMem(TEMP_INT);
+    loadYMem(TEMP_INT);
+    loadXConst("01");
+    sysCall();
   }
 }
 
