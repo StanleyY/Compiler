@@ -116,7 +116,7 @@ function writeIntAssignment(ast_node){
   }
   else if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
     // Setting to another ID's value
-    writeToOutputString("AD" + lookupVariableTemp(ast_node.getChild(1).val));
+    loadAccMem(lookupVariableTemp(ast_node.getChild(1).val));
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   }
   else{
@@ -133,7 +133,7 @@ function writeAddition(ast_node){
   }
   if(ast_node.getChild(1).val.match(/[0-9]/g) == null){
     //The right child is an ID.
-    writeToOutputString("AD" + lookupVariableTemp(ast_node.getChild(1).val));
+    loadAccMem(lookupVariableTemp(ast_node.getChild(1).val));
     writeToOutputString("8D" + TEMP_INT);
   }
   else{
@@ -172,7 +172,7 @@ function writeBooleanAssignment(ast_node){
     writeToOutputString("A9" + BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   } else if(ast_node.getChild(1).val.match(/[a-z]/g)){
-    writeToOutputString("AD" + lookupVariableTemp(ast_node.getChild(1).val));
+    loadAccMem(lookupVariableTemp(ast_node.getChild(1).val));
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   } else{
     resolveComparison(ast_node.getChild(1));
