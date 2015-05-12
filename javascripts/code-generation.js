@@ -292,13 +292,7 @@ function writeIf(ast_node){
   }
   else{
     resolveComparison(ast_node.getChild(0));
-    jumpBytes("J0");
-    var distance = OUTPUT_STRING.length / 2;
-    readBlock(ast_node.getChild(1));
-    distance = (OUTPUT_STRING.length / 2) - distance;
-    distance = distance.toString(16).toUpperCase();
-    if(distance.length == 1) distance = "0" + distance.toString(16).toUpperCase();
-    OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("J0", 'g'), distance);
+    writeJumpBlock(ast_node.getChild(1));
   }
 }
 
@@ -320,6 +314,24 @@ function writeWhile(ast_node){
     var current_location = (OUTPUT_STRING.length / 2);
     jumpBytes((254 - current_location + start_location).toString(16).toUpperCase());
   }
+  else{
+    writeOutput("Found While Loop with comparison");
+    resolveComparison(ast_node.getChild(0));
+    writeJumpBlock(ast_node.getChild(1));
+    flipZ();
+    var current_location = (OUTPUT_STRING.length / 2);
+    jumpBytes((254 - current_location + start_location).toString(16).toUpperCase());
+  }
+}
+
+function writeJumpBlock(ast_node){
+  jumpBytes("J0");
+  var distance = OUTPUT_STRING.length / 2;
+  readBlock(ast_node);
+  distance = (OUTPUT_STRING.length / 2) - distance;
+  distance = distance.toString(16).toUpperCase();
+  if(distance.length == 1) distance = "0" + distance.toString(16).toUpperCase();
+  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("J0", 'g'), distance);
 }
 
 function checkTempIntExistence(){
