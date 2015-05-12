@@ -193,10 +193,10 @@ function resolveComparison(ast_node){
     raiseFatalError("Nested BoolOp not supported yet");
   }
   if(ast_node.getChild(0).val.match(/true|false/g) == null){
-    writeToOutputString("AE" + lookupVariableTemp(ast_node.getChild(0).val));
+    loadXMem(lookupVariableTemp(ast_node.getChild(0).val));
   }
   else {
-    writeToOutputString("A2" + BOOLEAN_TRANSLATION[ast_node.getChild(0).val]);
+    loadXConst(BOOLEAN_TRANSLATION[ast_node.getChild(0).val]);
   }
   if(ast_node.getChild(1).val.match(/true|false/g) == null){
     writeToOutputString("EC" + lookupVariableTemp(ast_node.getChild(1).val));
@@ -212,7 +212,7 @@ function resolveComparison(ast_node){
     writeToOutputString("D0" + "02");
     loadAccConst("01");
     storeAccMem(TEMP_INT);
-    writeToOutputString("A2" + BOOLEAN_TRANSLATION["false"]);
+    loadXConst(BOOLEAN_TRANSLATION["false"]);
     writeToOutputString("EC" + TEMP_INT);
   }
 }
@@ -269,7 +269,7 @@ function writeWhile(ast_node){
     readBlock(ast_node.getChild(1));
     loadAccConst(BOOLEAN_TRANSLATION["false"]);
     storeAccMem(TEMP_INT);
-    writeToOutputString("A2" + BOOLEAN_TRANSLATION["true"]);
+    loadXConst(BOOLEAN_TRANSLATION["true"]);
     writeToOutputString("EC" + TEMP_INT);
     var current_location = (OUTPUT_STRING.length / 2);
     writeToOutputString("D0" + (254 - current_location + start_location).toString(16).toUpperCase());
