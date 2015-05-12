@@ -157,7 +157,13 @@ function writeAddition(ast_node){
 }
 
 function writeStringAssignment(ast_node){
-  var s = ast_node.getChild(1).val;
+  loadAccConst(writeStringToHeap(ast_node.getChild(1)));
+  storeAccMem(lookupVariableTemp(ast_node.getChild(0).val));
+}
+
+function writeStringToHeap(ast_node){
+  //Returns the address of the String.
+  var s = ast_node.val;
   var heap = "";
   for(var i = 2; i < (s.length - 2); i++){
     heap = heap + s.charCodeAt(i).toString(16).toUpperCase();
@@ -166,8 +172,7 @@ function writeStringAssignment(ast_node){
   console.log("HEAP STRING IS: " + heap);
   HEAP_STRING = heap + HEAP_STRING;
   HEAP_BEGINNING = HEAP_BEGINNING - (heap.length / 2);
-  loadAccConst((HEAP_BEGINNING + 1).toString(16).toUpperCase());
-  storeAccMem(lookupVariableTemp(ast_node.getChild(0).val));
+  return (HEAP_BEGINNING + 1).toString(16).toUpperCase();
 }
 
 function writeBooleanAssignment(ast_node){
