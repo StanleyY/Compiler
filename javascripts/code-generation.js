@@ -96,7 +96,8 @@ function writeVariable(ast_node){
   writeOutput("Added Variable: " + ast_node.getChild(1).val + " of scope " + CURRENT_SCOPE + ", temp ID: " + temp_id);
   if(ast_node.getChild(0).val != "string") {
     //We initialize int to 0 and boolean to false.
-    writeToOutputString("A9008D" + temp_id);
+    loadAccConst("00");
+    writeToOutputString("8D" + temp_id);
   }
   TEMP_NUM++;
 }
@@ -121,7 +122,8 @@ function writeIntAssignment(ast_node){
   }
   else{
     // Assigning a digit
-    writeToOutputString("A90" + ast_node.getChild(1).val + "8D" + lookupVariableTemp(ast_node.getChild(0).val));
+    loadAccConst("0" + ast_node.getChild(1).val)
+    writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   }
 }
 
@@ -138,18 +140,18 @@ function writeAddition(ast_node){
   }
   else{
     //The right child is a digit.
-    writeToOutputString("A90" + ast_node.getChild(1).val);
+    loadAccConst("0" + ast_node.getChild(1).val);
     writeToOutputString("8D" + TEMP_INT);
   }
 
   ast_node = original;
   while(ast_node.getChild(1).val == "+"){
     ast_node = ast_node.getChild(1);
-    writeToOutputString("A90" + ast_node.getChild(0).val);
+    loadAccConst("0" + ast_node.getChild(0).val);
     writeToOutputString("6D" + TEMP_INT);
     writeToOutputString("8D" + TEMP_INT);
   }
-  writeToOutputString("A90" + ast_node.getChild(0).val);
+  loadAccConst("0" + ast_node.getChild(0).val);
   writeToOutputString("6D" + TEMP_INT);
 }
 
@@ -163,22 +165,22 @@ function writeStringAssignment(ast_node){
   console.log("HEAP STRING IS: " + heap);
   HEAP_STRING = heap + HEAP_STRING;
   HEAP_BEGINNING = HEAP_BEGINNING - (heap.length / 2);
-  writeToOutputString("A9" + (HEAP_BEGINNING + 1).toString(16).toUpperCase());
+  loadAccConst((HEAP_BEGINNING + 1).toString(16).toUpperCase());
   writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
 }
 
 function writeBooleanAssignment(ast_node){
   if(ast_node.getChild(1).val.match(/true|false/g) != null){
-    writeToOutputString("A9" + BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
+    loadAccConst(BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   } else if(ast_node.getChild(1).val.match(/[a-z]/g)){
     loadAccMem(lookupVariableTemp(ast_node.getChild(1).val));
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   } else{
     resolveComparison(ast_node.getChild(1));
-    writeToOutputString("A9" + "00");
+    loadAccConst("00");
     writeToOutputString("D0" + "02");
-    writeToOutputString("A9" + "01");
+    loadAccConst("01");
     writeToOutputString("8D" + lookupVariableTemp(ast_node.getChild(0).val));
   }
 }
@@ -200,15 +202,15 @@ function resolveComparison(ast_node){
     writeToOutputString("EC" + lookupVariableTemp(ast_node.getChild(1).val));
   }
   else {
-    writeToOutputString("A9" + BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
+    loadAccConst(BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
     writeToOutputString("8D" + TEMP_INT);
     writeToOutputString("EC" + TEMP_INT);
   }
   if(ast_node.val == "!="){
     console.log("Flipping Z");
-    writeToOutputString("A9" + "00");
+    loadAccConst("00");
     writeToOutputString("D0" + "02");
-    writeToOutputString("A9" + "01");
+    loadAccConst("01");
     writeToOutputString("8D" + TEMP_INT);
     writeToOutputString("A2" + BOOLEAN_TRANSLATION["false"]);
     writeToOutputString("EC" + TEMP_INT);
@@ -265,7 +267,7 @@ function writeWhile(ast_node){
   else if(comparison == "true"){
     raiseWarning("Found infinite while statement.");
     readBlock(ast_node.getChild(1));
-    writeToOutputString("A9" + BOOLEAN_TRANSLATION["false"]);
+    loadAccConst(BOOLEAN_TRANSLATION["false"]);
     writeToOutputString("8D" + TEMP_INT);
     writeToOutputString("A2" + BOOLEAN_TRANSLATION["true"]);
     writeToOutputString("EC" + TEMP_INT);
