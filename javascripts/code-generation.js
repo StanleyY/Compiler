@@ -152,7 +152,7 @@ function writeAddition(ast_node){
     addMemToAcc(TEMP_INT);
     storeAccMem(TEMP_INT);
   }
-  loadAccConst("0" + ast_node.getChild(0).val);
+  loadAccConst("0" + original.getChild(0).val);
   addMemToAcc(TEMP_INT);
 }
 
