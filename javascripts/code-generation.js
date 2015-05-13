@@ -196,10 +196,6 @@ function writeBooleanAssignment(ast_node){
 function resolveComparison(ast_node){
   // Once this function finishes, the Z flag should be set appropriately.
   checkTempIntExistence();
-  if((ast_node.getChild(0).val + ast_node.getChild(1).val).match(/(==)|(!=)/g) != null){
-    writeToCodeOutput("Nested BoolOp not supported yet");
-    raiseFatalError("Nested BoolOp not supported yet");
-  }
 
   resolveLeft(ast_node.getChild(0));
   resolveRight(ast_node.getChild(1));
@@ -212,6 +208,16 @@ function resolveComparison(ast_node){
 function resolveLeft(ast_node){
   if(ast_node.val.match(/^true$|^false$/g) != null){
     loadXConst(BOOLEAN_TRANSLATION[ast_node.val]);
+  }
+  else if(ast_node.val.match(/\"/g)){
+    writeToCodeOutput("String Comparison not supported yet");
+    raiseFatalError("String Comparison not supported yet");
+  }
+  else if(ast_node.val.match(/==|!=/g) != null){
+    resolveComparison(ast_node);
+    loadXConst(BOOLEAN_TRANSLATION["false"]);
+    jumpBytes("02");
+    loadXConst(BOOLEAN_TRANSLATION["true"]);
   }
   else if(ast_node.val.match(/[a-z]/g) != null){
     if(lookupSymbolType(ast_node.val) == "string"){
@@ -237,6 +243,33 @@ function resolveRight(ast_node){
     loadAccConst(BOOLEAN_TRANSLATION[ast_node.val]);
     storeAccMem(TEMP_INT);
     compareMemToX(TEMP_INT);
+  }
+  else if(ast_node.val.match(/\"/g)){
+    writeToCodeOutput("String Comparison not supported yet");
+    raiseFatalError("String Comparison not supported yet");
+  }
+  else if(ast_node.val.match(/==|!=/g) != null){
+    // Stashing X
+    var TEMP_X = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
+    HEAP_BEGINNING = HEAP_BEGINNING - 1;
+    loadAccConst(BOOLEAN_TRANSLATION["false"]);
+    storeAccMem(TEMP_X);
+    compareMemToX(TEMP_X);
+    loadAccConst(BOOLEAN_TRANSLATION["true"]);
+    jumpBytes("02");
+    loadAccConst(BOOLEAN_TRANSLATION["false"]);
+    storeAccMem(TEMP_X);
+
+    resolveComparison(ast_node);
+
+    loadXMem(TEMP_X);
+    loadAccConst(BOOLEAN_TRANSLATION["false"]);
+    jumpBytes("02");
+    loadAccConst(BOOLEAN_TRANSLATION["true"]);
+    storeAccMem(TEMP_INT);
+    compareMemToX(TEMP_INT);
+
+    HEAP_BEGINNING = HEAP_BEGINNING + 1;
   }
   else if(ast_node.val.match(/[a-z]/g) != null){
     if(lookupSymbolType(ast_node.val) == "string"){
