@@ -249,9 +249,11 @@ function resolveRight(ast_node){
     raiseFatalError("String Comparison not supported yet");
   }
   else if(ast_node.val.match(/==|!=/g) != null){
-    // Stashing X
+    // Stashing X register in TEMP_X
     var TEMP_X = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
     HEAP_BEGINNING = HEAP_BEGINNING - 1;
+    if((HEAP_BEGINNING * 2) - OUTPUT_STRING.length < 1) raiseImageSizeError();
+
     loadAccConst(BOOLEAN_TRANSLATION["false"]);
     storeAccMem(TEMP_X);
     compareMemToX(TEMP_X);
