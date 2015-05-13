@@ -16,7 +16,9 @@ TEST_CASE_6 = "{\nint u\nboolean b\n\nstring s\nprint(s)\n\nint x\nint y\nx = 1\
 
 TEST_CASE_7 = "{\nboolean b\n\nb = ((true == (((true == true) != (true != false)) == false)) == (true != false))\n\nprint(b)\n\n}";
 
-TEST_CASES = [TEST_CASE_0, TEST_CASE_1, TEST_CASE_2, TEST_CASE_3, TEST_CASE_4, TEST_CASE_5, TEST_CASE_6, TEST_CASE_7];
+TEST_CASE_8 = "{\n  int i\n  int j\n  j = 4\n\n  while(i != 3){\n    print(\"loop\")\n    print(i)\n    print(\" \")\n    int j\n    j = 1\n    while(j != 4){\n      print(j)\n      j = 1 + j\n    }\n    print(\" \")\n    i = 1 + i\n  }\n  print(\"done\")\n} $"
+
+TEST_CASES = [TEST_CASE_0, TEST_CASE_1, TEST_CASE_2, TEST_CASE_3, TEST_CASE_4, TEST_CASE_5, TEST_CASE_6, TEST_CASE_7, TEST_CASE_8];
 
 function changeTestCase(){
   INPUT.val(TEST_CASES[$('#testCaseSelection').val()]);
