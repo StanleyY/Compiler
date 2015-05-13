@@ -94,7 +94,6 @@ function readBlock(ast_node){
 function writeVariable(ast_node){
   var temp_id = "T" + TEMP_NUM + "XX";
   VARIABLE_TABLE[ast_node.getChild(1).val + CURRENT_SCOPE] = temp_id;
-  console.log("Added Temp: " + temp_id);
   writeOutput("Added Variable: " + ast_node.getChild(1).val + " of scope " + CURRENT_SCOPE + ", temp ID: " + temp_id);
   if(ast_node.getChild(0).val != "string") {
     //We initialize int to 0 and boolean to false.
@@ -171,7 +170,6 @@ function writeStringToHeap(ast_node){
     heap = heap + s.charCodeAt(i).toString(16).toUpperCase();
   }
   heap = heap + "00";
-  console.log("HEAP STRING IS: " + heap);
   HEAP_STRING = heap + HEAP_STRING;
   HEAP_BEGINNING = HEAP_BEGINNING - (heap.length / 2);
   var address = (HEAP_BEGINNING + 1).toString(16).toUpperCase();
@@ -180,7 +178,7 @@ function writeStringToHeap(ast_node){
 }
 
 function writeBooleanAssignment(ast_node){
-  if(ast_node.getChild(1).val.match(/true|false/g) != null){
+  if(ast_node.getChild(1).val.match(/^true$|^false$/g) != null){
     loadAccConst(BOOLEAN_TRANSLATION[ast_node.getChild(1).val]);
     storeAccMem(lookupVariableTemp(ast_node.getChild(0).val));
   } else if(ast_node.getChild(1).val.match(/[a-z]/g)){
@@ -212,7 +210,7 @@ function resolveComparison(ast_node){
 }
 
 function resolveLeft(ast_node){
-  if(ast_node.val.match(/true|false/g) != null){
+  if(ast_node.val.match(/^true$|^false$/g) != null){
     loadXConst(BOOLEAN_TRANSLATION[ast_node.val]);
   }
   else if(ast_node.val.match(/[a-z]/g) != null){
@@ -235,7 +233,7 @@ function resolveLeft(ast_node){
 
 function resolveRight(ast_node){
   //Resolves the left portion appropriately and sets the Z flag.
-  if(ast_node.val.match(/true|false/g) != null){
+  if(ast_node.val.match(/^true$|^false$/g) != null){
     loadAccConst(BOOLEAN_TRANSLATION[ast_node.val]);
     storeAccMem(TEMP_INT);
     compareMemToX(TEMP_INT);
@@ -272,7 +270,7 @@ function flipZ(){
 
 function writePrint(ast_node){
   var child = ast_node.getChild(0).val;
-  if(child.match(/(true)|(false)/g) != null){
+  if(child.match(/^true$|^false$/g) != null){
     loadYConst(BOOLEAN_TRANSLATION[child]);
     loadXConst("01");
   }

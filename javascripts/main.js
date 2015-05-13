@@ -57,11 +57,11 @@ function run(){
 }
 
 function writeOutput(message){
-  OUTPUT.append(message + "\n");
+  OUTPUT.append(">" + message + "\n");
 }
 
 function raiseWarning(message){
-  message = "WARNING: " + message + "\n";
+  message = "WARNING: " + message;
   writeOutput(message);
 }
 
