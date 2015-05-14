@@ -352,6 +352,8 @@ function resolveStringComparison(ast_node){
   incrementMem(right_string_location + "00");
   incrementMem("S0" + "00");
   incrementMem("S1" + "00");
+  incrementMem("S2" + "00");
+  incrementMem("S3" + "00");
 
   OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("S0", 'g'), left_second_location);
   OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("S1", 'g'), right_second_location);
@@ -376,6 +378,13 @@ function resolveStringComparison(ast_node){
   //Unstash the final Z
   loadXConst("01");
   compareMemToX(STRING_COMP_RESULT);
+  jumpBytes("08"); // only do length check most recent chars were a match.
+  loadXMem(left_address);
+  left_string_location = generateHex((OUTPUT_STRING.length / 2) - 2);
+  compareMemToX(right_address);
+  right_string_location = generateHex((OUTPUT_STRING.length / 2) - 2);
+  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("S2", 'g'), left_string_location);
+  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("S3", 'g'), right_string_location);
 }
 
 function extractStringAddress(id){
