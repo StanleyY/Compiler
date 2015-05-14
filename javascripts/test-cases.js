@@ -2,7 +2,7 @@ console.log("Test cases loaded");
 
 TEST_CASE_0 = "{\nint x\nx = 1\n\nx = 1 + x\n\nstring s\ns = \"te st\"\n\nboolean b\nb = true\n\nif (x == 1) {\nprint(s)\n}\n\nwhile false {}\n} $";
 
-TEST_CASE_1 = "{\nint x\nx=9\nx = 1 + 1 + 1\n\nstring s\ns      =\"\"\ns =         \"long    s p a c e s\"\n\nboolean b\nb =     true\nb   =      false\nb = ((true == true) != false)\n} $";
+TEST_CASE_1 = "{\n  int x\n  x=9\n  x = 1 + 1 + 1\n  print(x)\n\n  string s\n  s      =\"\"\n  s =         \"long    s p a c e s\"\n  print(s)\n\n  boolean b\n  b =     true\n  b   =      false\n  b = ((true == true) != false)\n  if(b == true){\n    print(\"true\")\n  }\n  if(b == false){\n    print(\"false\")\n  }\n} $";
 
 TEST_CASE_2 = "{\nboolean b\nb= true\n\nif (b == true){}\nwhile false {}\nif ( (true == false) != (true == true) ) {\n  print(\"true\")\n}\n\nprint ( 1 )\n} $";
 
