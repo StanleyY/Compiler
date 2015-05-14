@@ -43,3 +43,7 @@ function addMemToAcc(address){
 function sysCall(){
   writeToOutputString("FF");
 }
+
+function incrementMem(address){
+  writeToOutputString("EE" + address);
+}

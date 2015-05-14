@@ -4,6 +4,9 @@ BOOLEAN_TRANSLATION = {};
 BOOLEAN_TRANSLATION["false"] = "00";
 BOOLEAN_TRANSLATION["true"] = "01";
 
+STRING_COMP_MODE = false;
+STRING_COMP_RESULT = "";
+
 OUTPUT_STRING = "";
 JUMP_TABLE = [];
 VARIABLE_TABLE = {};
@@ -22,6 +25,7 @@ function resetCodeGen(){
   JUMP_NUM = 0;
   TEMP_NUM = 0;
   HEAP_BEGINNING = 255;
+  STRING_COMP_RESULT = "";
 }
 
 function writeToCodeOutput(message){
@@ -105,6 +109,7 @@ function writeVariable(ast_node){
 
 function writeAssignment(ast_node){
   var assign_type = lookupSymbolType(ast_node.getChild(0).val);
+  writeOutput("Assignment generated for " + ast_node.getChild(0).val);
   if(assign_type == "int") writeIntAssignment(ast_node);
   else if(assign_type == "string") writeStringAssignment(ast_node);
   else if(assign_type == "boolean") writeBooleanAssignment(ast_node);
@@ -130,6 +135,7 @@ function writeIntAssignment(ast_node){
 
 function writeAddition(ast_node){
   // The total sum is stored in the accumulator.
+  writeOutput("Addition Generated");
   checkTempIntExistence();
   var original = ast_node;
   while(ast_node.getChild(1).val == "+"){
@@ -195,10 +201,18 @@ function writeBooleanAssignment(ast_node){
 
 function resolveComparison(ast_node){
   // Once this function finishes, the Z flag should be set appropriately.
+  STRING_COMP_MODE = false;
   checkTempIntExistence();
 
   resolveLeft(ast_node.getChild(0));
-  resolveRight(ast_node.getChild(1));
+
+  if(STRING_COMP_MODE){
+    // There will never be nested String comparisons.
+    resolveStringComparison(ast_node);
+  }
+  else{
+    resolveRight(ast_node.getChild(1));
+  }
 
   if(ast_node.val == "!="){
     flipZ();
@@ -206,12 +220,12 @@ function resolveComparison(ast_node){
 }
 
 function resolveLeft(ast_node){
+  // Resolves the left child and sets String Comp mode if needed
   if(ast_node.val.match(/^true$|^false$/g) != null){
     loadXConst(BOOLEAN_TRANSLATION[ast_node.val]);
   }
   else if(ast_node.val.match(/\"/g)){
-    writeToCodeOutput("String Comparison not supported yet");
-    raiseFatalError("String Comparison not supported yet");
+    STRING_COMP_MODE = true;
   }
   else if(ast_node.val.match(/==|!=/g) != null){
     resolveComparison(ast_node);
@@ -221,8 +235,7 @@ function resolveLeft(ast_node){
   }
   else if(ast_node.val.match(/[a-z]/g) != null){
     if(lookupSymbolType(ast_node.val) == "string"){
-      writeToCodeOutput("String Comparison not supported yet");
-      raiseFatalError("String Comparison not supported yet");
+      STRING_COMP_MODE = true;
     }
     loadXMem(lookupVariableTemp(ast_node.val));
   }
@@ -244,14 +257,12 @@ function resolveRight(ast_node){
     storeAccMem(TEMP_INT);
     compareMemToX(TEMP_INT);
   }
-  else if(ast_node.val.match(/\"/g)){
-    writeToCodeOutput("String Comparison not supported yet");
-    raiseFatalError("String Comparison not supported yet");
-  }
   else if(ast_node.val.match(/==|!=/g) != null){
     // Stashing X register in TEMP_X
     var TEMP_X = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
+    writeOutput("Using : " + TEMP_X + " for storing X register.");
     HEAP_BEGINNING = HEAP_BEGINNING - 1;
+    HEAP_STRING = "00" + HEAP_STRING;
     if((HEAP_BEGINNING * 2) - OUTPUT_STRING.length < 1) raiseImageSizeError();
 
     loadAccConst(BOOLEAN_TRANSLATION["false"]);
@@ -270,14 +281,8 @@ function resolveRight(ast_node){
     loadAccConst(BOOLEAN_TRANSLATION["true"]);
     storeAccMem(TEMP_INT);
     compareMemToX(TEMP_INT);
-
-    HEAP_BEGINNING = HEAP_BEGINNING + 1;
   }
   else if(ast_node.val.match(/[a-z]/g) != null){
-    if(lookupSymbolType(ast_node.val) == "string"){
-      writeToCodeOutput("String Comparison not supported yet");
-      raiseFatalError("String Comparison not supported yet");
-    }
     compareMemToX(lookupVariableTemp(ast_node.val));
   }
   else if(ast_node.val.match(/[0-9]/g) != null){
@@ -293,8 +298,129 @@ function resolveRight(ast_node){
   else raiseFatalError("Horrible Code Gen Problem");
 }
 
+function resolveStringComparison(ast_node){
+  writeOutput("String Comparison Generated");
+  checkTempIntExistence();
+
+  var left = ast_node.getChild(0);
+  var right = ast_node.getChild(1);
+
+  var left_address;
+  var right_address;
+
+  if(left.val.match(/\"/g) != null){
+    //Direct String
+    left_address = writeStringToHeap(left) + "00";
+  }
+  else{
+    var left_string_address = extractStringAddress(left.val);
+    if(left_string_address == null) left_string_address = "FF";
+    left_address = left_string_address + "00";
+  }
+
+  if(right.val.match(/\"/g) != null){
+    right_address = writeStringToHeap(right) + "00";
+  }
+  else{
+    var right_string_address = extractStringAddress(right.val);
+    if(right_string_address == null) right_string_address = "FF";
+    right_address = right_string_address + "00";
+  }
+
+  // Check first characters
+  writeCharCheck(left_address, right_address);
+
+  //Creating While loop to dig through until one of them equals 00.
+  var start_location = (OUTPUT_STRING.length / 2);
+  loadXConst("00");
+  compareMemToX(left_address);
+  var left_string_location = generateHex((OUTPUT_STRING.length / 2) - 2);
+  flipZ(); // If the char is at break, I need it to be 0 instead of 1.
+  jumpBytes("11");
+  compareMemToX(right_address);
+  var right_string_location = generateHex((OUTPUT_STRING.length / 2) - 2);
+  flipZ(); // If the char is at break, I need it to be 0 instead of 1.
+  var while_loop_temp = generateJumpTemp();
+  jumpBytes(while_loop_temp);
+
+  var comparison_block_size = OUTPUT_STRING.length;
+
+  //Compare the current char
+  loadXMem(left_address);
+  var left_second_location = generateHex((OUTPUT_STRING.length / 2) - 2);
+  compareMemToX(right_address);
+  var right_second_location = generateHex((OUTPUT_STRING.length / 2) - 2);
+
+  incrementMem(left_string_location + "00");
+  incrementMem(right_string_location + "00");
+  incrementMem("S0" + "00");
+  incrementMem("S1" + "00");
+  incrementMem("S2" + "00");
+  incrementMem("S3" + "00");
+
+  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("S0", 'g'), left_second_location);
+  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("S1", 'g'), right_second_location);
+
+  loadAccConst("00");
+  jumpBytes("02");
+  loadAccConst("01");
+  storeAccMem(STRING_COMP_RESULT);
+
+  // Loop if Comparison result is true by setting Z to zero
+  loadXConst("00");
+  compareMemToX(STRING_COMP_RESULT);
+  // Loop back distance
+  var current_location = (OUTPUT_STRING.length / 2);
+  jumpBytes((254 - current_location + start_location).toString(16).toUpperCase());
+
+  comparison_block_size = (OUTPUT_STRING.length - comparison_block_size) / 2;
+  comparison_block_size = comparison_block_size.toString(16).toUpperCase();
+  if(comparison_block_size.length == 1) comparison_block_size = "0" + comparison_block_size.toString(16).toUpperCase();
+  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp(while_loop_temp, 'g'), comparison_block_size);
+
+  //Unstash the final Z
+  loadXConst("01");
+  compareMemToX(STRING_COMP_RESULT);
+  jumpBytes("08"); // only do length check most recent chars were a match.
+  loadXMem(left_address);
+  left_string_location = generateHex((OUTPUT_STRING.length / 2) - 2);
+  compareMemToX(right_address);
+  right_string_location = generateHex((OUTPUT_STRING.length / 2) - 2);
+  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("S2", 'g'), left_string_location);
+  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("S3", 'g'), right_string_location);
+}
+
+function extractStringAddress(id){
+  var regex = new RegExp("A9(..)8D" + lookupVariableTemp(id), 'g');
+  var results = regex.exec(OUTPUT_STRING);
+  var output = null;
+  while(results != null){
+      output = results[1];
+      results = regex.exec(OUTPUT_STRING);
+  }
+  return output;
+}
+
+function writeCharCheck(left_address, right_address){
+  //Only to be used with resolveStringComparison
+  //Sets the Z flag appropriately and stores in temp.
+  if(STRING_COMP_RESULT.length == 0) {
+    // Only reserves heap space if addition is used.
+    STRING_COMP_RESULT = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
+    HEAP_STRING = "00" + HEAP_STRING;
+    HEAP_BEGINNING = HEAP_BEGINNING - 1;
+    writeOutput("Byte reserved for String Comparison at " + STRING_COMP_RESULT);
+  }
+
+  loadXMem(left_address);
+  compareMemToX(right_address);
+  loadAccConst("00");
+  jumpBytes("02");
+  loadAccConst("01");
+  storeAccMem(STRING_COMP_RESULT);
+}
+
 function flipZ(){
-  console.log("Flipping Z");
   loadAccConst("00");
   jumpBytes("02");
   loadAccConst("01");
@@ -304,6 +430,7 @@ function flipZ(){
 }
 
 function writePrint(ast_node){
+  writeOutput("Print Statement Generated");
   var child = ast_node.getChild(0).val;
   if(child.match(/^true$|^false$/g) != null){
     loadYConst(BOOLEAN_TRANSLATION[child]);
@@ -355,6 +482,7 @@ function writeIf(ast_node){
     readBlock(ast_node.getChild(1));
   }
   else{
+    writeOutput("If statement generated");
     resolveComparison(ast_node.getChild(0));
     var jump_temp = generateJumpTemp();
     jumpBytes(jump_temp);
@@ -386,7 +514,7 @@ function writeWhile(ast_node){
     jumpBytes((254 - current_location + start_location).toString(16).toUpperCase());
   }
   else{
-    writeOutput("Found While Loop with comparison");
+    writeOutput("While loop Generated");
     resolveComparison(ast_node.getChild(0));
 
     var jump_temp = generateJumpTemp();
@@ -444,4 +572,10 @@ function fixTemp(temp, address){
 
 function fillOutput(){
   OUTPUT_STRING = OUTPUT_STRING + Array(513 - (HEAP_STRING.length + OUTPUT_STRING.length)).join("0");
+}
+
+function generateHex(value){
+  value = value.toString(16).toUpperCase();
+  if(value.length == 1) return "0" + value;
+  return value;
 }
