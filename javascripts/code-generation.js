@@ -109,6 +109,7 @@ function writeVariable(ast_node){
 
 function writeAssignment(ast_node){
   var assign_type = lookupSymbolType(ast_node.getChild(0).val);
+  writeOutput("Assignment generated for " + ast_node.getChild(0).val);
   if(assign_type == "int") writeIntAssignment(ast_node);
   else if(assign_type == "string") writeStringAssignment(ast_node);
   else if(assign_type == "boolean") writeBooleanAssignment(ast_node);
@@ -134,6 +135,7 @@ function writeIntAssignment(ast_node){
 
 function writeAddition(ast_node){
   // The total sum is stored in the accumulator.
+  writeOutput("Addition Generated");
   checkTempIntExistence();
   var original = ast_node;
   while(ast_node.getChild(1).val == "+"){
@@ -297,6 +299,7 @@ function resolveRight(ast_node){
 }
 
 function resolveStringComparison(ast_node){
+  writeOutput("String Comparison Generated");
   checkTempIntExistence();
 
   var left = ast_node.getChild(0);
@@ -418,7 +421,6 @@ function writeCharCheck(left_address, right_address){
 }
 
 function flipZ(){
-  console.log("Flipping Z");
   loadAccConst("00");
   jumpBytes("02");
   loadAccConst("01");
@@ -428,6 +430,7 @@ function flipZ(){
 }
 
 function writePrint(ast_node){
+  writeOutput("Print Statement Generated");
   var child = ast_node.getChild(0).val;
   if(child.match(/^true$|^false$/g) != null){
     loadYConst(BOOLEAN_TRANSLATION[child]);
@@ -479,6 +482,7 @@ function writeIf(ast_node){
     readBlock(ast_node.getChild(1));
   }
   else{
+    writeOutput("If statement generated");
     resolveComparison(ast_node.getChild(0));
     var jump_temp = generateJumpTemp();
     jumpBytes(jump_temp);
@@ -510,7 +514,7 @@ function writeWhile(ast_node){
     jumpBytes((254 - current_location + start_location).toString(16).toUpperCase());
   }
   else{
-    writeOutput("Found While Loop with comparison");
+    writeOutput("While loop Generated");
     resolveComparison(ast_node.getChild(0));
 
     var jump_temp = generateJumpTemp();
