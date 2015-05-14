@@ -327,7 +327,7 @@ function resolveStringComparison(ast_node){
     left_address = writeStringToHeap(left) + "00";
   }
   else{
-    var left_string_address = extractStringAddress(left.val);
+    var left_string_address = extractStringAddress(lookupVariableTemp(left.val));
     if(left_string_address == null) left_string_address = "FE";
     left_address = left_string_address + "00";
   }
@@ -336,7 +336,7 @@ function resolveStringComparison(ast_node){
     right_address = writeStringToHeap(right) + "00";
   }
   else{
-    var right_string_address = extractStringAddress(right.val);
+    var right_string_address = extractStringAddress(lookupVariableTemp(right.val));
     if(right_string_address == null) right_string_address = "FE";
     right_address = right_string_address + "00";
   }
@@ -409,7 +409,22 @@ function resolveStringComparison(ast_node){
 }
 
 function extractStringAddress(id){
-  var regex = new RegExp("A9(..)8D" + lookupVariableTemp(id), 'g');
+  var regex = new RegExp("A9(..)8D" + id, 'g');
+  var results = regex.exec(OUTPUT_STRING);
+  var output = null;
+  while(results != null){
+      output = results[1];
+      results = regex.exec(OUTPUT_STRING);
+  }
+  if(output == null){
+    id = extractParentStringAddress(id);
+    if(id != null) return extractStringAddress(id);
+  }
+  return output;
+}
+
+function extractParentStringAddress(id){
+  var regex = new RegExp("AD(..XX)8D" + id, 'g');
   var results = regex.exec(OUTPUT_STRING);
   var output = null;
   while(results != null){
