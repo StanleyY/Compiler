@@ -310,14 +310,18 @@ function resolveStringComparison(ast_node){
     left_address = writeStringToHeap(left) + "00";
   }
   else{
-    left_address = lookupVariableTemp(left.val) + "00";
+    var left_string_address = extractStringAddress(left.val);
+    if(left_string_address == null) left_string_address = "FF";
+    left_address = left_string_address + "00";
   }
 
   if(right.val.match(/\"/g) != null){
     right_address = writeStringToHeap(right) + "00";
   }
   else{
-    right_address = lookupVariableTemp(right.val) + "00";
+    var right_string_address = extractStringAddress(right.val);
+    if(right_string_address == null) right_string_address = "FF";
+    right_address = right_string_address + "00";
   }
 
   // Check first characters
@@ -372,6 +376,17 @@ function resolveStringComparison(ast_node){
   //Unstash the final Z
   loadXConst("01");
   compareMemToX(STRING_COMP_RESULT);
+}
+
+function extractStringAddress(id){
+  var regex = new RegExp("A9(..)8D" + lookupVariableTemp(id), 'g');
+  var results = regex.exec(OUTPUT_STRING);
+  var output = null;
+  while(results != null){
+      output = results[1];
+      results = regex.exec(OUTPUT_STRING);
+  }
+  return output;
 }
 
 function writeCharCheck(left_address, right_address){
