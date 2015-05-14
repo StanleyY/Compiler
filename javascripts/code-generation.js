@@ -15,6 +15,7 @@ JUMP_NUM = 0;
 HEAP_BEGINNING = 255;
 HEAP_STRING = "";
 TEMP_INT = "";
+NULL_STRING_CREATED = false;
 
 function resetCodeGen(){
   TEMP_INT = "";
@@ -26,6 +27,7 @@ function resetCodeGen(){
   TEMP_NUM = 0;
   HEAP_BEGINNING = 255;
   STRING_COMP_RESULT = "";
+  NULL_STRING_CREATED = false;
 }
 
 function writeToCodeOutput(message){
@@ -111,7 +113,14 @@ function writeAssignment(ast_node){
   var assign_type = lookupSymbolType(ast_node.getChild(0).val);
   writeOutput("Assignment generated for " + ast_node.getChild(0).val);
   if(assign_type == "int") writeIntAssignment(ast_node);
-  else if(assign_type == "string") writeStringAssignment(ast_node);
+  else if(assign_type == "string") {
+    if(!NULL_STRING_CREATED) {
+      NULL_STRING_CREATED = true;
+      HEAP_STRING = "00" + HEAP_STRING;
+      HEAP_BEGINNING = HEAP_BEGINNING - 1;
+    }
+    writeStringAssignment(ast_node);
+  }
   else if(assign_type == "boolean") writeBooleanAssignment(ast_node);
   else raiseFatalError("Horrible Code Gen Problem");
 }
@@ -314,7 +323,7 @@ function resolveStringComparison(ast_node){
   }
   else{
     var left_string_address = extractStringAddress(left.val);
-    if(left_string_address == null) left_string_address = "FF";
+    if(left_string_address == null) left_string_address = "FE";
     left_address = left_string_address + "00";
   }
 
@@ -323,7 +332,7 @@ function resolveStringComparison(ast_node){
   }
   else{
     var right_string_address = extractStringAddress(right.val);
-    if(right_string_address == null) right_string_address = "FF";
+    if(right_string_address == null) right_string_address = "FE";
     right_address = right_string_address + "00";
   }
 
