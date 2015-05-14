@@ -251,7 +251,9 @@ function resolveRight(ast_node){
   else if(ast_node.val.match(/==|!=/g) != null){
     // Stashing X register in TEMP_X
     var TEMP_X = HEAP_BEGINNING.toString(16).toUpperCase() + "00";
+    writeOutput("Using : " + TEMP_X + " for storing X register.");
     HEAP_BEGINNING = HEAP_BEGINNING - 1;
+    HEAP_STRING = "00" + HEAP_STRING;
     if((HEAP_BEGINNING * 2) - OUTPUT_STRING.length < 1) raiseImageSizeError();
 
     loadAccConst(BOOLEAN_TRANSLATION["false"]);
@@ -270,8 +272,6 @@ function resolveRight(ast_node){
     loadAccConst(BOOLEAN_TRANSLATION["true"]);
     storeAccMem(TEMP_INT);
     compareMemToX(TEMP_INT);
-
-    HEAP_BEGINNING = HEAP_BEGINNING + 1;
   }
   else if(ast_node.val.match(/[a-z]/g) != null){
     if(lookupSymbolType(ast_node.val) == "string"){
