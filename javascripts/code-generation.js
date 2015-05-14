@@ -338,7 +338,8 @@ function resolveStringComparison(ast_node){
 
   // Check first characters
   writeCharCheck(left_address, right_address);
-
+  jumpBytes("S4");
+  var before_loop = (OUTPUT_STRING.length / 2);
   //Creating While loop to dig through until one of them equals 00.
   var start_location = (OUTPUT_STRING.length / 2);
   loadXConst("00");
@@ -387,6 +388,9 @@ function resolveStringComparison(ast_node){
   if(comparison_block_size.length == 1) comparison_block_size = "0" + comparison_block_size.toString(16).toUpperCase();
   OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp(while_loop_temp, 'g'), comparison_block_size);
 
+
+  before_loop = (OUTPUT_STRING.length / 2) - before_loop;
+  OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("S4", 'g'), before_loop);
   //Unstash the final Z
   loadXConst("01");
   compareMemToX(STRING_COMP_RESULT);
