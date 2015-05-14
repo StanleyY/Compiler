@@ -408,28 +408,32 @@ function resolveStringComparison(ast_node){
   OUTPUT_STRING = OUTPUT_STRING.replace(new RegExp("S3", 'g'), right_string_location);
 }
 
-function extractStringAddress(id){
+function extractStringAddress(id, limit){
+  if(limit == undefined) limit = OUTPUT_STRING.length;
+  var test_chunk = OUTPUT_STRING.substring(0, limit);
   var regex = new RegExp("A9(..)8D" + id, 'g');
-  var results = regex.exec(OUTPUT_STRING);
+  var results = regex.exec(test_chunk);
   var output = null;
   while(results != null){
       output = results[1];
-      results = regex.exec(OUTPUT_STRING);
+      results = regex.exec(test_chunk);
   }
   if(output == null){
     id = extractParentStringAddress(id);
-    if(id != null) return extractStringAddress(id);
+    if(id != null) return extractStringAddress(id[1], id.index);
   }
   return output;
 }
 
-function extractParentStringAddress(id){
+function extractParentStringAddress(id, limit){
+  if(limit == undefined) limit = OUTPUT_STRING.length;
+  var test_chunk = OUTPUT_STRING.substring(0, limit);
   var regex = new RegExp("AD(..XX)8D" + id, 'g');
-  var results = regex.exec(OUTPUT_STRING);
+  var results = regex.exec(test_chunk);
   var output = null;
   while(results != null){
-      output = results[1];
-      results = regex.exec(OUTPUT_STRING);
+      output = results;
+      results = regex.exec(test_chunk);
   }
   return output;
 }
