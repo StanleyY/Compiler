@@ -173,7 +173,12 @@ function writeAddition(ast_node){
 }
 
 function writeStringAssignment(ast_node){
-  loadAccConst(writeStringToHeap(ast_node.getChild(1)));
+  if(ast_node.getChild(1).val.match(/\"/g) != null){
+    loadAccConst(writeStringToHeap(ast_node.getChild(1)));
+  }
+  else{
+    loadAccMem(lookupVariableTemp(ast_node.getChild(1).val));
+  }
   storeAccMem(lookupVariableTemp(ast_node.getChild(0).val));
 }
 
